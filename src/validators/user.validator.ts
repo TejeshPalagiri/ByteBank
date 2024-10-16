@@ -1,0 +1,21 @@
+import { z } from 'zod';
+import * as constants from "../utils/constants";
+import { NextFunction, Request, Response } from 'express';
+import WobbleAuthError from '../utils/WobbleAuthError';
+
+export const login  = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = z.object({
+            usernName: z.string().min(constants.USERNAME_MIN_LENGTH).max(constants.USERNAME_MIN_LENGTH).regex(constants.USERNAME_REGEX, { message: "Username must be 3-16 characters long and can contain only letters, numbers, underscores, dots, and hyphens." }),
+            password: z.string().min(constants.USER_PASSWORD_MIN_LENGTH).max(constants.USER_PASSWORD_MAX_LENGTH).regex(constants.USER_PASSWORD_REGEX, { message: "A password should have alteast 1 uppercase, 1 lowercase, 1 number and 1 special charecter." })
+        }).safeParse(req.body);
+
+        if(!result.success) {
+            throw new WobbleAuthError(400, "Invalid required parameters", result.error?.errors);
+        }
+        
+        next();
+    } catch (error) {
+        next(error);
+    }
+}

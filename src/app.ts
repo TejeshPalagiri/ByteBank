@@ -64,14 +64,16 @@ app.use(
                     message: err.message,
                     code: err.code ? err.code : "",
                     stack: err.stack,
-                    requestId: req.requestId
+                    requestId: req.requestId,
+                    data: err.data
                 }
                 : {
                     success: false,
                     message: err.message,
                     status: err.status || 500,
                     code: err.code ? err.code : "",
-                    requestId: req.requestId
+                    requestId: req.requestId,
+                    data: err.data
                 };
 
         // send error message
