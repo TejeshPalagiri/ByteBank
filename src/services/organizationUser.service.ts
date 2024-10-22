@@ -7,14 +7,14 @@ export const findByOrganizationAndUser = (userId: string | Types.ObjectId, organ
 }
 
 export const createOrganizationUser = async (organizationUser: IOrganizationUser | Array<IOrganizationUser>) => {
-    if(!Array.isArray(organizationUser)) {
+    if (!Array.isArray(organizationUser)) {
         organizationUser = [organizationUser]
     }
 
     const promises: Array<Promise<IOrganizationUser>> = [];
-    for(let o of organizationUser) {
+    for (let o of organizationUser) {
         let dbRecord = await findByOrganizationAndUser(o.user, o.organization);
-        if(_.isEmpty(dbRecord)) {
+        if (_.isEmpty(dbRecord)) {
             dbRecord = new OrganizationUser(o);
         }
         promises.push(dbRecord.save());

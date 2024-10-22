@@ -24,7 +24,7 @@ const capabilityScheama = new Schema<ICapability>({
         type: String
     },
     previlege: {
-        type: Types.Map
+        type: Types.Subdocument
     },
     isDeleted: {
         type: Boolean,
