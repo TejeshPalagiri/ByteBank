@@ -2,13 +2,14 @@ import { Types } from "mongoose";
 import { IUser, User, UserStatus } from "../models/User";
 import * as _ from "lodash";
 
-export const findUserByEmailOrUsername = (username: string, status: UserStatus = UserStatus.ACTIVE, selectPassword: boolean = false) => {
+export const findUserByEmailOrUsername = (username: string, status: UserStatus = UserStatus.ACTIVE, selectPassword: boolean = false, isVerified: boolean = true) => {
     const user = User.findOne({
         status: status,
         $or: [
             { userName: username.toLowerCase() },
             { email: username.toLowerCase() }
-        ]
+        ],
+        isVerified: isVerified
     })
 
     if (selectPassword) {
