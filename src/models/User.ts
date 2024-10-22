@@ -100,6 +100,10 @@ const userSchema = new Schema<IUser>({
     salt: {
         type: String,
         select: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: {
@@ -163,8 +167,9 @@ userSchema.methods.generateSessionTokens = function (): { accessToken: string, r
     }
 }
 
-userSchema.index({ userName: 1 });
-userSchema.index({ email: 1 });
+userSchema.index({ userName: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ status: 1 });
 userSchema.index({ '$**': 'text' });
 
 export const User = model<IUser>("User", userSchema)

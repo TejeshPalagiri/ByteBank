@@ -1,8 +1,6 @@
 import { Types } from "mongoose";
 
-export interface IBase {
-    createdBy: Types.ObjectId,
-    updatedBy: Types.ObjectId,
+export interface ITimestamp {
     createdAt: Date,
     updatedAt: Date,
     isDeleted: boolean
