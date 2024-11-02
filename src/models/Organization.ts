@@ -22,7 +22,8 @@ export interface IOrganization extends ITimestamp {
     phone: string,
     phoneCode: string,
     status: OrganizationStatus,
-    code: string
+    code: string,
+    website: string
 }
 
 const organizationSchema = new Schema<IOrganization>({
@@ -86,6 +87,9 @@ const organizationSchema = new Schema<IOrganization>({
         type: Date,
         required: true,
         default: Date.now
+    },
+    website: {
+        type: String
     }
 }, {
     timestamps: {

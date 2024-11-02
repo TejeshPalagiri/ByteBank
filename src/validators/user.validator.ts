@@ -24,10 +24,16 @@ export const login  = (req: Request, res: Response, next: NextFunction) => {
 export const signup = (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = z.object({
-            email: z.string().min(constants.USER_EMAIL_MIN_LENGTH).max(constants.USER_EMAIL_MAX_LENGTH),
+            email: z.string().min(constants.USER_EMAIL_MIN_LENGTH).max(constants.USER_EMAIL_MAX_LENGTH).regex(constants.COMMON.EMAIL_REGEX, "Please provide a valid mail address."),
             usernName: z.string().min(constants.USERNAME_MIN_LENGTH).max(constants.USERNAME_MIN_LENGTH).regex(constants.USERNAME_REGEX, { message: "Username must be 3-16 characters long and can contain only letters, numbers, underscores, dots, and hyphens." }),
-            organization: z.string()
-        })
+            organization: z.string(),
+        }).safeParse(req.body);
+
+        if(!result.success) {
+            throw new WobbleAuthError(400, "Invalid required parameters", result.error?.errors);
+        }
+        
+        next();
     } catch (error) {
         next(error);
     }

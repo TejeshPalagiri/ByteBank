@@ -37,3 +37,10 @@ export const createUser = async (user: IUser | Array<IUser>) => {
 export const findUserById = (id: string | Types.ObjectId) => {
     return User.findById(id);
 }
+
+export const findUserByOrganization = (organization: string | Types.ObjectId, status: UserStatus | Array<UserStatus> = [UserStatus.ACTIVE], isDeleted: boolean = false) => {
+    if(!Array.isArray(status)) {
+        status = [status]
+    }
+    return User.find({ organization: organization, status: { $in: status }, isDeleted: isDeleted,  })
+}

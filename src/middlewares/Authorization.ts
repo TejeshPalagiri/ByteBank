@@ -4,7 +4,7 @@ import * as token from "../utils/token";
 import { User } from "../models/User";
 import * as config from "../config";
 
-export const requiresLogin = async (
+export const requiresLogin: any = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -61,7 +61,7 @@ export const requiresLogin = async (
     }
 };
 
-export const requiresSuperUser = async (
+export const requiresSuperUserToken: any = async (
     req: Request,
     res: Response,
     next: NextFunction

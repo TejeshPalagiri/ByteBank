@@ -25,6 +25,10 @@ export interface IUser extends IBase {
     isVerified: boolean,
     password: string,
     salt: string,
+    organization: Types.ObjectId,
+    role: Types.ObjectId,
+    extraCapabilities: Array<Types.ObjectId>,
+    verificationcode: string
     verify: Function,
     generateSessionTokens: Function,
     encryptPassword: Function,
@@ -94,7 +98,6 @@ const userSchema = new Schema<IUser>({
     },
     password: {
         type: String,
-        required: [true, "Please provide password"],
         select: false
     },
     salt: {
@@ -104,6 +107,25 @@ const userSchema = new Schema<IUser>({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    organization: {
+        type: Schema.Types.ObjectId,
+        ref: "Organization",
+        required: [true, "Please provide the organization."]
+    },
+    role: {
+        type: Schema.Types.ObjectId,
+        ref: "Role",
+        required: [true, "Please provide role to create an user."]
+    },
+    extraCapabilities: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Capability"
+        }
+    ],
+    verificationcode: {
+        type: String
     }
 }, {
     timestamps: {
@@ -129,6 +151,7 @@ userSchema.pre("save", async function (next) {
         if (!this.userName) {
             this.userName = this.email.split("@")[0];
         }
+        this.verificationcode = cryptoService.generateRandomId(8);
     }
     if (!this.isModified("password")) {
         return next();
