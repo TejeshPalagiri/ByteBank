@@ -4,11 +4,13 @@ import { NextFunction, Response, Router, Request } from "express";
 import * as UserValidator from "../validators/user.validator";
 import * as OrganizationValidator from "../validators/organization.validator";
 import * as CapabilityValidator from "../validators/capability.validator";
+import * as RoleValidator from "../validators/role.validator";
 
 // Controllers
 import * as UserController from "../controllers/user.controller";
 import * as OrganizationController from "../controllers/organization.controller";
 import * as CapabilityController from "../controllers/capability.controller";
+import * as RoleController from "../controllers/role.controller";
 
 // Middlewares
 import * as middlewares from "../middlewares/Authorization";
@@ -45,5 +47,11 @@ v1.put("/capability/:id", middlewares.requiresSuperUserToken, CapabilityValidato
 v1.get("/capability", middlewares.requiresSuperUserToken, CapabilityController.get);
 v1.get("/capability/:id", middlewares.requiresSuperUserToken, CapabilityController.getById);
 
+
+// Role related routes
+v1.post("/role", middlewares.requiresSuperUserToken, RoleValidator.createRole, RoleController.create);
+v1.put("/role/:id", middlewares.requiresSuperUserToken, RoleValidator.createRole, RoleController.update);
+v1.get("/role/organization/:organization", middlewares.requiresSuperUserToken, RoleController.get);
+v1.get("/role/:id", middlewares.requiresSuperUserToken, RoleController.getById);
 
 export default v1;

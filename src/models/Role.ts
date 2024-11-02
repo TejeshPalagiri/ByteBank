@@ -5,7 +5,8 @@ export interface IRole extends ITimestamp {
     title: string,
     label: string,
     organization: Types.ObjectId,
-    capabilty: Array<Types.ObjectId>
+    capability: Array<Types.ObjectId>,
+    isDefault: boolean
 }
 
 const roleSchema = new Schema<IRole>({
@@ -19,11 +20,11 @@ const roleSchema = new Schema<IRole>({
         type: Schema.Types.ObjectId,
         ref: "Organization"
     },
-    capabilty: [
+    capability: [
         {
             type: Schema.Types.ObjectId,
             ref: "Capability"
-        }
+        },
     ],
     isDeleted: {
         type: Boolean,
@@ -38,6 +39,10 @@ const roleSchema = new Schema<IRole>({
         type: Date,
         required: true,
         default: Date.now
+    },
+    isDefault: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: {
