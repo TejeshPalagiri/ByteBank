@@ -6,7 +6,7 @@ interface userPayload {
     userId: string;
 }
 
-export const verifyAccessToken = (token: string): Promise<{ id: string }> => {
+export const verifyAccessToken = (token: string): Promise<{ id: string, session: string }> => {
     return new Promise((resolve, reject) => {
         jwt.verify(
             token,
@@ -16,7 +16,7 @@ export const verifyAccessToken = (token: string): Promise<{ id: string }> => {
                     return reject(err);
                 }
                 const user = decrypt(userObject.id);
-                return resolve({ id: user });
+                return resolve({ id: user, session: userObject?.session });
             }
         );
     });
@@ -28,7 +28,7 @@ export const createAccessToken = (userObj: any) => {
     });
 };
 
-export const verifyRefreshToken = (token: string): Promise<{ id: string }> => {
+export const verifyRefreshToken = (token: string): Promise<{ id: string, session: string }> => {
     return new Promise((resolve, reject) => {
         jwt.verify(
             token,
@@ -38,7 +38,7 @@ export const verifyRefreshToken = (token: string): Promise<{ id: string }> => {
                     return reject(err);
                 }
                 const user = decrypt(userObject.userId);
-                return resolve({ id: user });
+                return resolve({ id: user, session: userObject?.session });
             }
         );
     });

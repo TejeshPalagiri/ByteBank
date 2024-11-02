@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import * as token from "../utils/token";
 import { User } from "../models/User";
 import * as config from "../config";
+import * as UserSessionService from  "../services/userSession.service";
 
 export const requiresLogin: any = async (
     req: Request,
@@ -41,9 +42,10 @@ export const requiresLogin: any = async (
             if (error.name === "TokenExpiredError") {
                 // Remove current access token in redis
                 const user = await User.findById(refreshTokenData);
-
-                // TODO: Prepare token fetching method in the user models
                 const newTokens = user.generateSessionTokens();
+
+                // Updating the newly added tokens 
+                await UserSessionService.updateTokensById(refreshTokenData.session, newTokens)
 
                 // Setting new access and refresh tokens into the response headers
                 res.set({

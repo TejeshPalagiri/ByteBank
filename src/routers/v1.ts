@@ -28,7 +28,7 @@ v1.get("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-v1.post("/user", UserValidator.signup, UserController.login)
+v1.post("/user", UserValidator.signup, UserController.signup);
 
 
 

@@ -11,7 +11,6 @@ export enum UserStatus {
 }
 
 export interface IUser extends IBase {
-    _id: Types.ObjectId,
     firstName: string,
     lastName: string,
     userName: string,
@@ -147,11 +146,14 @@ userSchema.virtual('fullName')
     })
 
 userSchema.pre("save", async function (next) {
+    if(this.isNew) {
+        this.verificationcode = cryptoService.generateRandomId(8);
+        // TODO: May be send an email notification to verify the user.
+    }
     if (this.isModified("createdAt")) {
         if (!this.userName) {
             this.userName = this.email.split("@")[0];
         }
-        this.verificationcode = cryptoService.generateRandomId(8);
     }
     if (!this.isModified("password")) {
         return next();
@@ -179,9 +181,16 @@ userSchema.methods.comparePassword = function (password: string) {
 };
 
 
-userSchema.methods.generateSessionTokens = function (): { accessToken: string, refreshToken: string } {
-    let payload = {
+userSchema.methods.generateSessionTokens = function (session: string): { accessToken: string, refreshToken: string } {
+    let payload: {
+        id: string,
+        session?: string
+    } = {
         id: cryptoService.encrypt(this._id.toString())
+    }
+
+    if(session) {
+        payload['session'] = session
     }
 
     return {
@@ -190,8 +199,8 @@ userSchema.methods.generateSessionTokens = function (): { accessToken: string, r
     }
 }
 
-userSchema.index({ userName: 1 }, { unique: true });
-userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ userName: 1, organization: 1 }, { unique: true });
+userSchema.index({ email: 1, organization: 1 }, { unique: true });
 userSchema.index({ status: 1 });
 userSchema.index({ '$**': 'text' });
 

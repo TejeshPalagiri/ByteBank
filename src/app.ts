@@ -14,10 +14,13 @@ app.use(cookieParser());
 
 // Middlewares
 app.set("port", config.PORT);
+app.set("trust proxy", true)
 app.use(cors(corsOptions));
 app.use(express.json());
 
 const requestLogger = (req: Request, res: Response, next: NextFunction) => {
+    const ipAddress = req.headers['x-forwarded-for'] || req.ip;
+    req.ipAddress = Array.isArray(ipAddress) ? ipAddress[0] : ipAddress;
     req.requestId = cryptoService.generateRandomId(16);
     console.log(`${req.requestId} : ${req.method}: ${req.originalUrl}`);
     res.setHeader('Access-Control-Expose-Headers', 'x-header-accesstoken, x-header-refreshtoken');
