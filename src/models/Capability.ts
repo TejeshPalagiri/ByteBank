@@ -2,11 +2,11 @@ import { model, Schema, Types } from "mongoose";
 import { ITimestamp } from "./TimeStamp";
 
 interface IPrevilege {
-    [module: string]: {
-        read: boolean,
-        write: boolean,
-        deleted: boolean
-    }
+    key: string,
+    read: boolean,
+    write: boolean,
+    deleted: boolean,
+    edit: boolean
 }
 
 export interface ICapability extends ITimestamp {
@@ -24,7 +24,11 @@ const capabilityScheama = new Schema<ICapability>({
         type: String
     },
     previlege: {
-        type: Types.Subdocument
+        key: { type: String },
+        read: { type: Boolean, required: true },
+        write: { type: Boolean, required: true },
+        delete: { type: Boolean, required: true },
+        edit: { type: Boolean, required: true }
     },
     isDeleted: {
         type: Boolean,

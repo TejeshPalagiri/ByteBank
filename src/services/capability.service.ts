@@ -5,6 +5,10 @@ export const getAll = (isDeleted: boolean = false) => {
     return Capability.find({ isDeleted: isDeleted })
 }
 
+export const getById = (id: string | Types.ObjectId) => {
+    return Capability.findById(id);
+}
+
 export const create = (capability: ICapability | Array<ICapability>) => {
     if (!Array.isArray(capability)) {
         capability = [capability];

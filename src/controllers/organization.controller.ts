@@ -32,7 +32,7 @@ export const updateOrganizationStatus = async(req: Request, res: Response, next:
 export const get = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const params: any = req.query;
-        const organizations = await OrganizationService.findOrganizationByStatus(params.status);
+        const organizations = await OrganizationService.findOrganizationByStatus(params?.status);
 
         res.status(200).json({
             success: true,
