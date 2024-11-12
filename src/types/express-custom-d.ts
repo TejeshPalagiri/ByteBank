@@ -3,5 +3,7 @@ declare namespace Express {
         currentUser: any;
         requestId: string;
         ipAddress: string;
+        organization: string;
+        userAgent: string;
     }
 }

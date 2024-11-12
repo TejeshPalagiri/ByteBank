@@ -15,6 +15,12 @@ export const create = (session: IUserSession) => {
     return newSession.save();
 }
 
+export const generateHositedSession = (user: string | Types.ObjectId) => {
+    return new UserSession({
+        user: user
+    })
+}
+
 export const updateTokensById = (id: string | Types.ObjectId, tokens: userSessionTokens) => {
     return UserSession.updateOne({ _id: id }, { $set: { tokens: tokens } });
 }

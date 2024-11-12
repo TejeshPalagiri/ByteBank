@@ -14,6 +14,7 @@ import * as RoleController from "../controllers/role.controller";
 
 // Middlewares
 import * as middlewares from "../middlewares/Authorization";
+import { checkHeaders } from "../middlewares/headers.middleware";
 
 const v1 = Router();
 /* 
@@ -28,8 +29,10 @@ v1.get("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-v1.post("/user", UserValidator.signup, UserController.signup);
+v1.post("/user", checkHeaders('x-header-organization'), UserValidator.signup, UserController.signup);
+v1.post("/user/verify/:verificationcode", UserValidator.verifyUser, UserController.verifyUser);
 
+v1.post("/login", checkHeaders('x-header-organization'), UserValidator.login, UserController.login);
 
 
 

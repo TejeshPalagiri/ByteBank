@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { IUser, User, UserStatus } from "../models/User";
 import * as _ from "lodash";
 
-export const findUserByEmailOrUsername = (username: string, status: UserStatus = UserStatus.ACTIVE, selectPassword: boolean = false, isVerified: boolean = true) => {
+export const findUserByEmailOrUsername = (username: string, selectPassword: boolean = false, status: UserStatus = UserStatus.ACTIVE, isVerified: boolean = true) => {
     const user = User.findOne({
         status: status,
         $or: [
@@ -43,4 +43,8 @@ export const findUserByOrganization = (organization: string | Types.ObjectId, st
         status = [status]
     }
     return User.find({ organization: organization, status: { $in: status }, isDeleted: isDeleted,  })
+}
+
+export const findUserByVerificationCode = (verificationCode: string) => {
+    return User.findOne({ verificationcode: verificationCode });
 }

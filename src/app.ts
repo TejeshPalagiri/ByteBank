@@ -22,6 +22,7 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
     const ipAddress = req.headers['x-forwarded-for'] || req.ip;
     req.ipAddress = Array.isArray(ipAddress) ? ipAddress[0] : ipAddress;
     req.requestId = cryptoService.generateRandomId(16);
+    req.userAgent = req.headers['user-agent'];
     console.log(`${req.requestId} : ${req.method}: ${req.originalUrl}`);
     res.setHeader('Access-Control-Expose-Headers', 'x-header-accesstoken, x-header-refreshtoken');
     next();

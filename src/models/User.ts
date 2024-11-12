@@ -31,7 +31,9 @@ export interface IUser extends IBase {
     verify: Function,
     generateSessionTokens: Function,
     encryptPassword: Function,
-    comparePassword: Function
+    comparePassword: Function,
+    forgotPasswordToken: string,
+    forgotPasswordTokenExpiry: Date,
 }
 
 const userSchema = new Schema<IUser>({
@@ -48,8 +50,7 @@ const userSchema = new Schema<IUser>({
     },
     email: {
         type: String,
-        required: [true, "Please provide email of the user"],
-        unique: true
+        required: [true, "Please provide email of the user"]
     },
     phone: {
         type: String
@@ -125,6 +126,12 @@ const userSchema = new Schema<IUser>({
     ],
     verificationcode: {
         type: String
+    },
+    forgotPasswordToken: {
+        type: String
+    },
+    forgotPasswordTokenExpiry: {
+        type: Date
     }
 }, {
     timestamps: {
@@ -157,9 +164,12 @@ userSchema.pre("save", async function (next) {
     }
     if (!this.isModified("password")) {
         return next();
+    } else {
+        this.salt = crypto.randomBytes(16).toString("base64");
+        this.password = this.encryptPassword(this.password);
+        this.isVerified = true;
     }
-    this.salt = crypto.randomBytes(16).toString("base64");
-    this.password = this.encryptPassword(this.password);
+    
     next()
 })
 
