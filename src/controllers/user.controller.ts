@@ -188,3 +188,19 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 }
+
+export const me =  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.currentUser.id;
+
+        const dbUser = await UserService.findUserById(user, true);
+
+        res.status(200).json({
+            success: true,
+            data: dbUser
+        })
+        
+    } catch (error) {
+        next(error);
+    }
+}

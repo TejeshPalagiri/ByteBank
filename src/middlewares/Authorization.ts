@@ -5,16 +5,10 @@ import { User } from "../models/User";
 import * as config from "../config";
 import * as UserSessionService from  "../services/userSession.service";
 
-export const requiresLogin: any = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const requiresLogin: any = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let accessToken =
-            req.headers["x-header-accesstoken"] || req.cookies.token;
-        let refreshToken =
-            req.headers["x-header-refreshtoken"] || req.cookies.refreshToken;
+        let accessToken = req.headers["x-header-accesstoken"] || req.cookies.token;
+        let refreshToken =  req.headers["x-header-refreshtoken"] || req.cookies.refreshToken;
 
         if (_.isEmpty(accessToken)) {
             return res.status(401).json({

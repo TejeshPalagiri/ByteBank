@@ -32,6 +32,7 @@ v1.get("/", (req: Request, res: Response, next: NextFunction) => {
 v1.post("/user", checkHeaders('x-header-organization'), UserValidator.signup, UserController.signup);
 v1.post("/user/verify/:verificationcode", UserValidator.verifyUser, UserController.verifyUser);
 v1.put("/user/password", UserValidator.changePassword, UserController.changePassword);
+v1.get("/user/me", middlewares.requiresLogin, UserController.me);
 
 v1.post("/login", checkHeaders('x-header-organization'), UserValidator.login, UserController.login);
 

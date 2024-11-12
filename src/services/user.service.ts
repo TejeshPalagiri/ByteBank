@@ -34,7 +34,10 @@ export const createUser = async (user: IUser | Array<IUser>) => {
     return Promise.all(promises);
 }
 
-export const findUserById = (id: string | Types.ObjectId) => {
+export const findUserById = (id: string | Types.ObjectId, capabilities: boolean = false) => {
+    if(capabilities) {
+        return User.findById(id).populate({ path: 'role' }).populate({ path: 'extraCapabilities' });
+    }
     return User.findById(id);
 }
 
