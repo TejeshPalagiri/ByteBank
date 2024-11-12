@@ -48,3 +48,7 @@ export const findUserByOrganization = (organization: string | Types.ObjectId, st
 export const findUserByVerificationCode = (verificationCode: string) => {
     return User.findOne({ verificationcode: verificationCode });
 }
+
+export const findUserByForgotCode = (forgotToken: string) => {
+    return User.findOne({ forgotPasswordToken: forgotToken });
+}

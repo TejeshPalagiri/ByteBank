@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import _ from "lodash";
 
 if (fs.existsSync(path.join(__dirname, "../../.env"))) {
     console.debug("Using .env file to supply config environment variables");
@@ -38,3 +39,6 @@ export const CRYPTO_PRIVATE_KEY =
 
 // Super user token
 export const SUPER_USER_TOKEN = process.env.SUPER_USER_TOKEN;
+
+// Forgot password token expiry
+export const RESET_PASSWORD_EXPIRY = !_.isNaN(parseInt(process.env.RESET_PASSWORD_EXPIRY)) ? parseInt(process.env.RESET_PASSWORD_EXPIRY) : 5;

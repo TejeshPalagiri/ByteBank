@@ -3,6 +3,7 @@ import { IBase } from "./Base";
 import * as cryptoService from "../utils/crypto";
 import * as token from "../utils/token";
 import crypto from "crypto";
+import * as config from "../config";
 
 export enum UserStatus {
     IN_ACTIVE = 0,
@@ -34,6 +35,7 @@ export interface IUser extends IBase {
     comparePassword: Function,
     forgotPasswordToken: string,
     forgotPasswordTokenExpiry: Date,
+    generateForgotPasswordToken: Function
 }
 
 const userSchema = new Schema<IUser>({
@@ -207,6 +209,13 @@ userSchema.methods.generateSessionTokens = function (session: string): { accessT
         accessToken: token.createAccessToken(payload),
         refreshToken: token.createRefreshsToken(payload)
     }
+}
+
+userSchema.methods.generateForgotPasswordToken = function() {
+    this.forgotPasswordToken = cryptoService.generateRandomId(12);
+    this.forgotPasswordTokenExpiry = Date.now() + config.RESET_PASSWORD_EXPIRY * 60 * 1000;
+
+    return this.forgotPasswordToken;
 }
 
 userSchema.index({ userName: 1, organization: 1 }, { unique: true });

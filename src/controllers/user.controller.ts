@@ -4,6 +4,7 @@ import * as UserSessionService from "../services/userSession.service";
 import * as RoleService from "../services/role.service";
 import WobbleAuthError from "../utils/WobbleAuthError";
 import _ from "lodash";
+import moment from "moment";
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -70,6 +71,118 @@ export const verifyUser = async (req: Request, res: Response, next: NextFunction
         res.status(200).json({
             success: true,
             message: "User verified successfully."
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const user = await UserService.findUserByEmailOrUsername(req.body?.email);
+
+        if(_.isEmpty(user)) {
+            return res.status(200).json({
+                success: true,
+                message: "Password reset link should be sent to the user.",
+            })
+        }
+
+        const token = user.generateForgotPasswordToken();
+        await user.save();
+
+        // TODO: Send an email to the user
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset link should be sent to the user.",
+            data: {
+                resetToken: token
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+export const verifyPasswordToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { token } = req.params;
+        const dbUser = await UserService.findUserByForgotCode(token);
+
+        if(_.isEmpty(dbUser)) {
+            throw new WobbleAuthError(400, "Reset password link has been expired.")
+        }
+
+        if(moment(new Date()).isAfter(moment(dbUser.forgotPasswordTokenExpiry))) {
+            throw new WobbleAuthError(400, "Reset password link has been expired.")
+        }
+
+        // So now the user passed token is legit
+
+        res.status(200).json({
+            success: true,
+            message: "User is legit and continue password update."
+        })
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updatePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { token } = req.params;
+        const dbUser = await UserService.findUserByForgotCode(token);
+        const { password } = req.body;
+
+        if(_.isEmpty(dbUser)) {
+            throw new WobbleAuthError(400, "Reset password link has been expired.")
+        }
+
+        if(moment(new Date()).isAfter(moment(dbUser.forgotPasswordTokenExpiry))) {
+            throw new WobbleAuthError(400, "Reset password link has been expired.")
+        }
+
+        // So now the user passed token is legit
+        dbUser.password = password;
+        dbUser.forgotPasswordToken = undefined;
+        dbUser.forgotPasswordTokenExpiry = undefined;
+
+        await dbUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Updated password successfully."
+        })
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.currentUser
+        const { password, currentPassword } = req.body;
+
+        const dbUser = await UserService.findUserById(user);
+
+        if(!dbUser.comparePassword(currentPassword)) {
+            throw new WobbleAuthError(400, "Provided current password is invalid.");
+        }
+
+        if(password === currentPassword) {
+            throw new WobbleAuthError(400, "Old and New password can't be same.");
+        }
+        
+        dbUser.password = password;
+        await dbUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Changed password successfully."
         })
     } catch (error) {
         next(error);
