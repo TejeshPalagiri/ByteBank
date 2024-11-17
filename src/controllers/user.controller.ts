@@ -164,10 +164,10 @@ export const updatePassword = async (req: Request, res: Response, next: NextFunc
 
 export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = req.currentUser
+        const user = req?.currentUser?.id;
         const { password, currentPassword } = req.body;
 
-        const dbUser = await UserService.findUserById(user);
+        const dbUser = await UserService.findUserById(user, false, true);
 
         if(!dbUser.comparePassword(currentPassword)) {
             throw new WobbleAuthError(400, "Provided current password is invalid.");
