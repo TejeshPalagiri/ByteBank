@@ -27,6 +27,22 @@ const spaceSchema = new Schema<ISpace>({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        required: [true, "Please provide the owner of the folder."]
+    },
+    updatedBy: {
+        type: Schema.Types.ObjectId,
+        required: [true, "Please provide the owner of the folder."]
     }
 })
 

@@ -42,3 +42,14 @@ export const SUPER_USER_TOKEN = process.env.SUPER_USER_TOKEN;
 
 // Forgot password token expiry
 export const RESET_PASSWORD_EXPIRY = !_.isNaN(parseInt(process.env.RESET_PASSWORD_EXPIRY)) ? parseInt(process.env.RESET_PASSWORD_EXPIRY) : 5;
+
+
+// Bytes bank 
+export const AWS = {
+    S3: {
+        ACCESS_KEY: process.env.ACCESS_KEY,
+        SECRET: process.env.SECRET,
+        REGION: process.env.REGION,
+        BUCKET: process.env.BUCKET
+    }
+}

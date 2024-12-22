@@ -5,5 +5,6 @@ declare namespace Express {
         ipAddress: string;
         organization: string;
         userAgent: string;
+        space: string;
     }
 }
