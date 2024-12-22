@@ -53,6 +53,8 @@ const folderSchema = new Schema<IFolder>({
         type: Schema.Types.ObjectId,
         required: [true, "Please provide the owner of the folder."]
     }
+}, {
+    timestamps: true
 })
 
 folderSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });

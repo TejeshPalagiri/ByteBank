@@ -1,5 +1,6 @@
 import { model, Schema, Types } from "mongoose";
 import { IBase } from "../../models/Base";
+import * as S3 from "../utils/s3.utils";
 
 
 export const SUPPORTED_MIME_TYPES: string[] = [
@@ -42,7 +43,9 @@ export interface IFile extends IBase {
     mimeType: string,
     size: number,
     thumbnail: string,
-    passcode: string
+    passcode: string,
+    key: string,
+    signedUrl?: string
 }
 
 const fileSchema = new Schema<IFile>({
@@ -81,6 +84,9 @@ const fileSchema = new Schema<IFile>({
     passcode: {
         type: String
     },
+    key: {
+        type: String
+    },
     isDeleted: {
         type: Boolean,
         default: false
@@ -101,8 +107,16 @@ const fileSchema = new Schema<IFile>({
         type: Schema.Types.ObjectId,
         required: [true, "Please provide the owner of the folder."]
     }
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true }, 
+    toObject: { virtuals: true }
 })
 
 fileSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
+fileSchema.virtual('signedUrl')
+    .get(function (this: IFile) {
+        return S3.getFilePresignedURl(this.key);
+    })
 
 export const File = model<IFile>("File", fileSchema);

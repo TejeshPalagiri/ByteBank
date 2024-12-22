@@ -11,7 +11,7 @@ AWS.config.update({
 
 export interface FILE_UPLOAD_PARAMS {
     key: string;
-    contentType: string;
+    mimeType: string;
 }
 
 const s3 = new AWS.S3();
@@ -20,7 +20,7 @@ export const getUploadPresignedUrl = (uploadParams: FILE_UPLOAD_PARAMS) => {
     const params = {
         Bucket: config.AWS.S3.BUCKET,
         Key: uploadParams.key,
-        ContentType: uploadParams.contentType
+        ContentType: uploadParams.mimeType
     };
 
     return s3.getSignedUrl("putObject", params);

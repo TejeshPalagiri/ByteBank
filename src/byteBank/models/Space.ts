@@ -44,6 +44,8 @@ const spaceSchema = new Schema<ISpace>({
         type: Schema.Types.ObjectId,
         required: [true, "Please provide the owner of the folder."]
     }
+}, {
+    timestamps: true
 })
 
 spaceSchema.index({ name: 1, owner: 1 }, { unique: true })
