@@ -39,6 +39,6 @@ byteBankRouter.put("/folder/:id", checkHeaders('x-header-organization'), checkHe
 // File related routes
 byteBankRouter.get("/file", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileController.getAllFiles);
 byteBankRouter.get("/file/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileController.getFileById);
-byteBankRouter.post("/file", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileValidator.createFile, FileController.getFileById);
+byteBankRouter.post("/file", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileValidator.createFile, FileController.createFile);
 byteBankRouter.post("/file/signed-url", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileValidator.getUploadUrl, FileController.getUploadPresignedUrl);
 export default byteBankRouter;

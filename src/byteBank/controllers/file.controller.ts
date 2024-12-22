@@ -3,7 +3,7 @@ import * as FileService from "../services/file.service";
 import WobbleAuthError from "../../utils/WobbleAuthError";
 import * as _ from "lodash";
 import * as S3 from "../utils/s3.utils";
-
+import * as FolderService from "../services/folder.service";
 
 export const createFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -12,10 +12,11 @@ export const createFile = async (req: Request, res: Response, next: NextFunction
         req.body.createdBy = owner;
         req.body.updatedBy = owner;
         req.body.owner = owner
-        if(_.isEmpty(req.body.key)) {
-            req.body.key = `${req.body.name}`;
-        } 
-        req.body.key = `${req.space}/${req.body.key}`;
+        if(_.isEmpty(req.body.parent)) {
+            req.body.key = `${req.space}/${req.body.key}`;
+        } else {
+            req.body.key = (await FolderService.getById(req.body.parent, owner)).path + req.body.name
+        }
     
         await FileService.create(req.body)
         res.status(200).json({
@@ -24,7 +25,7 @@ export const createFile = async (req: Request, res: Response, next: NextFunction
         })
     } catch (error) {
         if(error.code === 11000) {
-            let wobbleAuthError = new WobbleAuthError(400, "Folder with the given name already exists.");
+            let wobbleAuthError = new WobbleAuthError(400, "File with the given name already exists.");
             return next(wobbleAuthError);
         }
         console.error(error);
