@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import * as constants from "../utils/constants";
 import { NextFunction, Request, Response } from 'express';
 import WobbleAuthError from '../utils/WobbleAuthError';
 

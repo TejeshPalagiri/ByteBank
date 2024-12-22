@@ -7,6 +7,7 @@ import * as config from "./config";
 import * as cryptoService from "./utils/crypto";
 import WobbleAuthError from "./utils/WobbleAuthError";
 import v1 from "./routers/v1";
+import byteBank from "./byteBank/routes/byteBank"
 
 const app = express();
 const corsOptions = {};
@@ -29,6 +30,7 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
 };
 app.use(requestLogger);
 app.use("/api/v1", v1);
+app.use("/api/byte-bank", byteBank);
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send(
