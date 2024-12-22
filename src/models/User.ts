@@ -139,7 +139,10 @@ const userSchema = new Schema<IUser>({
     timestamps: {
         createdAt: "createdAt",
         updatedAt: "updatedAt"
-    }
+    },
+    // The below 2 objects are to include the virtual fields in the query result
+    toJSON: { virtuals: true }, 
+    toObject: { virtuals: true }
 })
 
 
