@@ -13,7 +13,7 @@ export const createFile = async (req: Request, res: Response, next: NextFunction
         req.body.updatedBy = owner;
         req.body.owner = owner
         if(_.isEmpty(req.body.parent)) {
-            req.body.key = `${req.space}/${req.body.key}`;
+            req.body.key = `${req.space}/${req.body.name}`;
         } else {
             req.body.key = (await FolderService.getById(req.body.parent, owner)).path + req.body.name
         }
