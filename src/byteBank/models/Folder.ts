@@ -58,12 +58,11 @@ const folderSchema = new Schema<IFolder>({
 })
 
 folderSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
-folderSchema.pre("save", async function(next) {
-    if(this.isNew) {
-        const res = await S3.createFolderInBucket(this.path);
-        console.log(res);
-    }
-    next();
+
+folderSchema.post("save", async function(doc) {
+    // TODO: Need to check if this overwrites the folder
+    const res = await S3.createFolderInBucket(doc.path);
+    console.log(res);
 })
 
 export const Folder = model<IFolder>("Folder", folderSchema);
