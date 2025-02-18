@@ -1,15 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Eye, FileText, Folder, Trash2 } from "lucide-react";
-
+import {
+    DownloadCloud,
+    Eye,
+    FileText,
+    Folder,
+    Trash2,
+    UploadCloud,
+    UploadCloudIcon,
+} from "lucide-react";
+import * as FileService from "../services/rest/file.service";
+import * as UserService from "../services/rest/user.service";
+import { IFile } from "@/interfaces/File";
+import _, { set } from "lodash";
+import PreviewFile from "./PreviewFile";
 function FileGrid({
     files,
     onDelete,
@@ -18,14 +31,24 @@ function FileGrid({
     onNavigateBack,
 }) {
     const [searchTerm, setSearchTerm] = useState("");
-
-    const filteredFiles = files;
-    // files.filter(
-    //     (file) =>
-    //         file.path.join("/") === currentPath.join("/") &&
-    //         file.name.toLowerCase().includes(searchTerm.toLowerCase())
-    // );
-
+    const [fileterdFiles, setFilteredFiles] = useState<Array<IFile>>([]);
+    const [preview, setPreview] = useState({
+        url: "",
+        title: "",
+        isOpen: false,
+        onClose: () => {},
+    });
+    useEffect(() => {
+        if (!_.isEmpty(searchTerm)) {
+            setFilteredFiles(
+                _.filter(files, (file) => {
+                    return file.name.includes(searchTerm);
+                })
+            );
+        } else {
+            setFilteredFiles(files);
+        }
+    }, [searchTerm, files]);
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
             <h2 className="text-2xl font-semibold mb-6">Files & Folders</h2>
@@ -42,42 +65,52 @@ function FileGrid({
                 </Button>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {filteredFiles.length > 0 ? (
-                    filteredFiles.map((file) => (
+                {fileterdFiles.length > 0 ? (
+                    fileterdFiles.map((file, index) => (
                         <div
-                            key={file.name}
+                            key={file._id}
                             className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
-                            onClick={() =>
-                                file.type === "folder" && onNavigate(file.name)
-                            }
+                            // onClick={() =>
+                            //     file.type === "folder" && onNavigate(file._id)
+                            // }
                         >
-                            {file.type === "folder" ? (
+                            {/* {file.type === "folder" ? (
                                 <Folder className="w-12 h-12 text-yellow-400" />
-                            ) : (
-                                <FileText className="w-12 h-12 text-blue-400" />
-                            )}
+                            ) : ( */}
+                            <FileText className="w-12 h-12 text-blue-400" />
+                            {/* )} */}
                             <p className="mt-2 text-center text-sm truncate w-full">
                                 {file.name}
                             </p>
                             <div className="flex space-x-2 mt-2">
                                 <Button
                                     size="icon"
-                                    onClick={() => onDelete(file.name)}
+                                    onClick={() => onDelete(index)}
                                     className="bg-red-600 hover:bg-red-700"
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
-                                {file.type !== "folder" && (
-                                    <Button
-                                        size="icon"
-                                        variant="outline"
-                                        onClick={() =>
-                                            window.open(file.preview, "_blank")
-                                        }
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                    </Button>
-                                )}
+                                {/* {file.type !== "folder" && ( */}
+                                {/* <Button
+                                    size="icon"
+                                    variant="outline"
+                                    onClick={() =>
+                                        setPreview({
+                                            url: file.signedUrl,
+                                            title: file.name,
+                                            isOpen: true,
+                                            onClose: () => {}
+                                        })
+                                    }
+                                >
+                                    <Eye className="w-4 h-4" />
+                                </Button> */}
+                                {/* )} */}
+                                <Button size="icon" variant="outline" onClick={() => {
+                                    window.open(file.signedUrl, "_blank");
+                                }}>
+                                    <DownloadCloud className="w-4 h-4" />
+                                </Button>
                             </div>
                         </div>
                     ))
@@ -87,36 +120,64 @@ function FileGrid({
                     </p>
                 )}
             </div>
+            <PreviewFile
+                url={preview.url}
+                title={preview.title}
+                isOpen={preview.isOpen}
+                onClose={() => setPreview({ url: "", title: "", isOpen: false, onClose: () => {} })}
+            />
         </div>
     );
 }
 
 export default function FileUpload() {
-    const [files, setFiles] = useState([]);
+    const [files, setFiles] = useState<Array<IFile>>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentPath, setCurrentPath] = useState([]);
 
     const { getRootProps, getInputProps } = useDropzone({
         // accept: "image/*,application/pdf",
         onDrop: (acceptedFiles) => {
-            setFiles((prevFiles) => [
-                ...prevFiles,
-                ...acceptedFiles
-            ]);
+            // setFiles((prevFiles) => [
+            //     ...prevFiles,
+            //     ...acceptedFiles
+            // ]);
         },
     });
 
-    const handleDelete = (fileName) => {
-        setFiles(
-            files
-            // files.filter(
-            //     (file) =>
-            //         !(
-            //             file.name === fileName &&
-            //             file.path.join("/") === currentPath.join("/")
-            //         )
-            // )
-        );
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const userDetails = await UserService.getCurrentUserDetails();
+            } catch (error) {
+                console.error(error);
+            }
+        };
+    }, []);
+
+    // Get all the files and folders
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const files = (await FileService.getAllFiles()).data || [];
+                setFiles(files);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        init();
+    }, []);
+
+    const handleDelete = async (index: number) => {
+        try {
+            const file = files[index];
+            if(file) {
+                await FileService.deleteFile(file._id);
+            }
+            setFiles(files.splice(index, 1));
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleNavigate = (folderName) => {
@@ -129,8 +190,11 @@ export default function FileUpload() {
 
     return (
         <div className="relative">
-            <Button className="m-4" onClick={() => setIsDialogOpen(true)}>
-                Upload Files
+            <Button
+                className="fixed bottom-4 right-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition"
+                onClick={() => setIsDialogOpen(true)}
+            >
+                <UploadCloudIcon />
             </Button>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -148,6 +212,11 @@ export default function FileUpload() {
                             files
                         </p>
                     </div>
+                    <DialogFooter>
+                        <Button type="submit">
+                            Upload <UploadCloud />
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

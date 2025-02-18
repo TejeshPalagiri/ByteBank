@@ -47,3 +47,28 @@ export const deleteCookies = (keys: string | Array<string>, options = {}) => {
         Cookies.remove(k, options);
     }
 };
+
+export const saveMiscTokens = (
+    type: "ORGANIZATION" | "SPACE",
+    token: string
+) => {
+    switch (type) {
+        case "ORGANIZATION":
+            Cookies.set("organization", token);
+            break;
+        case "SPACE":
+            Cookies.set("space", token);
+            break;
+    }
+}
+
+export const getMiscTokens = (
+    type: "ORGANIZATION" | "SPACE"
+) => {
+    switch (type) {
+        case "ORGANIZATION":
+            return Cookies.get("organization");
+        case "SPACE":
+            return Cookies.get("space");
+    }
+}

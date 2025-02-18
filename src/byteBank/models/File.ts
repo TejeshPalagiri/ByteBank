@@ -113,7 +113,7 @@ const fileSchema = new Schema<IFile>({
     toObject: { virtuals: true }
 })
 
-fileSchema.index({ name: 1, parent: 1, space: 1, isDeleted: 1 }, { unique: true });
+fileSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
 fileSchema.virtual('signedUrl')
     .get(function (this: IFile) {
         return S3.getFilePresignedURl(this.key);

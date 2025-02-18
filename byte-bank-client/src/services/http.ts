@@ -4,7 +4,7 @@ import * as CookieService from "./cookies.service";
 import * as SharedService from "./shared.service";
 
 const HttpClient = axios.create({
-    baseURL: `${constants.SERVER_URL}${constants.API_URL}`,
+    baseURL: `${constants.SERVER_URL}`,
     headers: {
         "Content-Type": "application/json",
     },
@@ -15,12 +15,23 @@ HttpClient.interceptors.request.use(
         const accessToken = CookieService.getToken("ACCESS_TOKEN");
         const refreshToken = CookieService.getToken("REFRESH_TOKEN");
 
+        const organization = CookieService.getMiscTokens("ORGANIZATION");
+        const space = CookieService.getMiscTokens("SPACE");
+
         if (accessToken) {
             config.headers["x-header-accesstoken"] = accessToken;
         }
 
         if (refreshToken) {
             config.headers["x-header-refreshtoken"] = refreshToken;
+        }
+
+        if (organization) {
+            config.headers["x-header-organization"] = organization;
+        }
+
+        if (space) {
+            config.headers["x-header-space"] = space;
         }
 
         return config;
@@ -44,9 +55,15 @@ HttpClient.interceptors.response.use(
                 response.headers["x-header-refreshtoken"]
             );
         }
+        // For now checking the organization id in the body and saving in the cookies
+        if(response.data?.data?.organization?.length) {
+            CookieService.saveMiscTokens("ORGANIZATION", response.data?.data?.organization);
+        }
         if (response.status >= 200 && response.status <= 300) {
             // Show some success notification
-            // SharedService.OpenToast("SUCCESS", response?.data?.message);
+            if(response?.data?.message?.length) {
+                SharedService.OpenToast("SUCCESS", response?.data?.message);
+            }
         }
         return response.data;
     },
