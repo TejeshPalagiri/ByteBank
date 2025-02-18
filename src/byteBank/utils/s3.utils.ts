@@ -59,18 +59,28 @@ export const uploadFile = async (key: string, body: Buffer, contentType?: string
     });
 }
 
-export const createFolderInBucket = (key: string) => {
+export const createFolderInBucket = (key: string, isDelete: boolean = false) => {
     return new Promise((resolve, reject) => {
         const params = {
             Bucket: config.AWS.S3.BUCKET,
             Key: key
         }
+
+        if(isDelete) {
+            s3.deleteObject(params, (err, res) => {
+                if(!_.isEmpty(err)) {
+                    reject(err)
+                }
+                resolve(res);
+            });
+        } else {
+            s3.putObject(params, (err, res) => {
+                if(!_.isEmpty(err)) {
+                    reject(err)
+                }
+                resolve(res);
+            });
+        }
     
-        s3.putObject(params, (err, res) => {
-            if(!_.isEmpty(err)) {
-                reject(err)
-            }
-            resolve(res);
-        });
     })
 }

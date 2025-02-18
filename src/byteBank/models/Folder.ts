@@ -57,7 +57,7 @@ const folderSchema = new Schema<IFolder>({
     timestamps: true
 })
 
-folderSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
+folderSchema.index({ name: 1, parent: 1, space: 1, isDeleted: 1 }, { unique: true });
 
 folderSchema.post("save", async function(doc) {
     // TODO: Need to check if this overwrites the folder
@@ -65,4 +65,9 @@ folderSchema.post("save", async function(doc) {
     console.log(res);
 })
 
+folderSchema.post("findOneAndUpdate", async (doc) => {
+    if(doc.isDeleted) {
+        await S3.createFolderInBucket(doc.path, doc.isDeleted);
+    }
+})
 export const Folder = model<IFolder>("Folder", folderSchema);

@@ -25,3 +25,7 @@ export const create = async (folder: IFile | Array<IFile>) => {
 export const update = async (_id: string | Types.ObjectId, updatedFolder: IFile) => {
     return File.findOneAndUpdate({ _id: _id }, { $set: { ...updatedFolder } }, { new: true, upsert: true });
 }
+
+export const deleteFile = async (_id: string | Types.ObjectId, user: string | Types.ObjectId) => {
+    return File.findOneAndUpdate({ _id: _id }, { $set: { isDeleted: true, updatedBy: user } }, { new: true });
+}

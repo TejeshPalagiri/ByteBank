@@ -83,3 +83,20 @@ export const getUploadPresignedUrl = (req: Request, res: Response, next: NextFun
         next(error);
     }
 }
+
+export const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const user = req.currentUser.id;
+        await FileService.deleteFile(id, user);
+
+        res.status(200).json({
+            success: true,
+            message: "File deleted successfully."
+        })
+
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+}

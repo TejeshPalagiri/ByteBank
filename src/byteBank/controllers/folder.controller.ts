@@ -87,3 +87,19 @@ export const getFolders = async(req: Request, res: Response, next: NextFunction)
         console.error(error);
     }
 }
+
+export const deleteFolder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const user = req.currentUser.id;
+        await FolderService.deleteFolder(id, user);
+
+        res.status(200).json({
+            success: true,
+            message: "Deleted Folder successfully."
+        })
+    } catch (error) {
+        next(error);
+        console.error(error);
+    }
+}

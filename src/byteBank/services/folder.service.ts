@@ -25,3 +25,7 @@ export const create = async (folder: IFolder | Array<IFolder>) => {
 export const update = async (_id: string | Types.ObjectId, updatedFolder: IFolder) => {
     return Folder.findOneAndUpdate({ _id: _id }, { $set: { ...updatedFolder } }, { new: true, upsert: true });
 }
+
+export const deleteFolder = (_id: string | Types.ObjectId, user: string | Types.ObjectId) => {
+    return Folder.findOneAndUpdate({ _id: _id }, { $set: { isDeleted: true, updatedBy: user } }, { new: true })
+}

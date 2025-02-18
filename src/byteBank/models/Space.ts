@@ -48,6 +48,6 @@ const spaceSchema = new Schema<ISpace>({
     timestamps: true
 })
 
-spaceSchema.index({ name: 1, owner: 1 }, { unique: true })
+spaceSchema.index({ name: 1, owner: 1, isDeleted: 1 }, { unique: true })
 
 export const Space = model<ISpace>("Space", spaceSchema)

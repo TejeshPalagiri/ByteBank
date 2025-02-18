@@ -8,7 +8,7 @@ mongoose.connect(connectionURI, {
     autoIndex: true
 })
 
-mongoose.set('debug', true);
+mongoose.set('debug', false);
 // mongoose.set("sanitizeFilter", true);
 mongoose.set("allowDiskUse", true);
 

@@ -35,10 +35,12 @@ byteBankRouter.get("/folder", checkHeaders('x-header-organization'), checkHeader
 byteBankRouter.get("/folder/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FolderController.getFolderById);
 byteBankRouter.post("/folder", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FolderValidator.createFolder, FolderController.createFolder);
 byteBankRouter.put("/folder/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FolderValidator.createFolder, FolderController.updateFolder);
+byteBankRouter.delete("/folder/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FolderController.deleteFolder);
 
 // File related routes
 byteBankRouter.get("/file", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileController.getAllFiles);
 byteBankRouter.get("/file/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileController.getFileById);
 byteBankRouter.post("/file", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileValidator.createFile, FileController.createFile);
 byteBankRouter.post("/file/signed-url", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileValidator.getUploadUrl, FileController.getUploadPresignedUrl);
+byteBankRouter.delete("/file/:id", checkHeaders('x-header-organization'), checkHeaders('x-header-space'), requiresLogin, FileController.deleteFile)
 export default byteBankRouter;
