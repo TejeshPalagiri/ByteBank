@@ -9,8 +9,10 @@ export const createFolder = async (req: Request, res: Response, next: NextFuncti
         req.body.updatedBy = owner;
         req.body.createdBy = owner;
         req.body.owner = owner;
-        if(_.isEmpty(req.body.path)) {
+        if(_.isEmpty(req.body.parent)) {
             req.body.path = `${req.space}/${req.body.name}/`;
+        } else {
+            req.body.path = (await FolderService.getById(req.body.parent, owner)).path + req.body.name + "/"
         }
         await FolderService.create(req.body);
 

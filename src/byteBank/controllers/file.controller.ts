@@ -18,10 +18,11 @@ export const createFile = async (req: Request, res: Response, next: NextFunction
             req.body.key = (await FolderService.getById(req.body.parent, owner)).path + req.body.name
         }
     
-        await FileService.create(req.body)
+        const result = await FileService.create(req.body)
         res.status(200).json({
             success: true,
-            message: "File Created successfully."
+            message: "File Created successfully.",
+            data: result
         })
     } catch (error) {
         if(error.code === 11000) {
@@ -69,7 +70,7 @@ export const getFileById = async(req: Request, res: Response, next: NextFunction
 
 export const getUploadPresignedUrl = (req: Request, res: Response, next: NextFunction) => {
     try {
-        req.body.key = `${req.space}/${req.body.key}`;
+        req.body.key = `${req.body.key}`;
         const url = S3.getUploadPresignedUrl(req.body);
 
         res.status(200).json({
