@@ -2,8 +2,8 @@ import { BYTE_BANK_URL } from "@/constants"
 import HttpClient from "../http"
 import { IFile } from "@/interfaces/File";
 
-export const getAllFiles = () => {
-    return HttpClient.get(`${BYTE_BANK_URL}/file`);
+export const getAllFiles = (parent?: string) => {
+    return HttpClient.get(`${BYTE_BANK_URL}/file`, { params: { parent: parent }});
 }
 
 // The following hit will just creates a DB record of the file

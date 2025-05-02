@@ -2,11 +2,12 @@ import { BYTE_BANK_URL } from "@/constants"
 import HttpClient from "../http"
 import { IFolder } from "@/interfaces/Folder"
 
-export const getAllFolders = (id?:string) => {
-    if(id?.length) {
-        return HttpClient.get(`${BYTE_BANK_URL}/folder/${id}`)
-    }
-    return HttpClient.get(`${BYTE_BANK_URL}/folder`)
+export const getAllFolders = (parent?:string) => {
+    return HttpClient.get(`${BYTE_BANK_URL}/folder`, { params: { parent: parent }});
+}
+
+export const getFolder = (_id: string) => {
+    return HttpClient.get(`${BYTE_BANK_URL}/folder/${_id}`);
 }
 
 export const createFolder = (folder: IFolder) => {

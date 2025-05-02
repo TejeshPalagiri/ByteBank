@@ -7,6 +7,7 @@ const HttpClient = axios.create({
     baseURL: `${constants.SERVER_URL}`,
     headers: {
         "Content-Type": "application/json",
+        "x-header-organization": constants.ORGANIZATION,
     },
 });
 
