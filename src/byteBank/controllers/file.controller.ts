@@ -36,11 +36,11 @@ export const createFile = async (req: Request, res: Response, next: NextFunction
 
 export const getAllFiles = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        const { parent } = req.body;
+        let { parent } = req.query;
         const owner = req.currentUser.id;
         const space = req.space;
 
-        let files = await FileService.getAll(parent, space, owner);
+        let files = await FileService.getAll(parent?.length ? parent?.toString() : undefined, space, owner);
 
         res.status(200).json({
             success: true,

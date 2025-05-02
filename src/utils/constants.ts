@@ -8,7 +8,7 @@ export const ORGANIZATION_NAME_MIN_LENGTH = 6;
 export const ORGANIZATION_CODE_MAX_LENGTH = 6;
 export const ORGANIZATION_CODE_MIN_LENGTH = 3;
 
-export const USERNAME_MAX_LENGTH = 16;
+export const USERNAME_MAX_LENGTH = 50;
 export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_REGEX = /^[a-zA-Z0-9._-]{3,16}$/;
 export const USER_PASSWORD_MAX_LENGTH = 18;

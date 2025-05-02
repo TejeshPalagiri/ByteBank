@@ -75,10 +75,10 @@ export const getFolderById = async(req: Request, res: Response, next: NextFuncti
 
 export const getFolders = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        const { parent } = req.body;
+        let { parent } = req.query;
         const owner = req.currentUser.id;
         const space = req.space;
-        const folders = await FolderService.getAll(parent, space, owner);
+        const folders = await FolderService.getAll(parent?.length ? parent?.toString() : undefined, space, owner);
 
         res.status(200).json({
             success: true,
