@@ -120,7 +120,15 @@ fileSchema.virtual('signedUrl')
     })
 fileSchema.post("findOneAndUpdate", async (doc) => {
     if(doc.isDeleted) {
-        await S3.createFolderInBucket(doc.key, doc.isDeleted);
+        // await S3.createFolderInBucket(doc.key, doc.isDeleted); 
+        // TODO: Here instead of deleting the file in s3 we need to archive it.
     }
+})
+fileSchema.pre("findOneAndDelete", async function (next) {
+    const doc = await this.model.findOne(this.getQuery());
+    if(doc) {
+        await S3.createFolderInBucket(doc.key, true);
+    }
+    next();
 })
 export const File = model<IFile>("File", fileSchema);
