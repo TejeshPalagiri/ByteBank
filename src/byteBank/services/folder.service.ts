@@ -26,6 +26,9 @@ export const update = async (_id: string | Types.ObjectId, updatedFolder: IFolde
     return Folder.findOneAndUpdate({ _id: _id }, { $set: { ...updatedFolder } }, { new: true, upsert: true });
 }
 
-export const deleteFolder = (_id: string | Types.ObjectId, user: string | Types.ObjectId) => {
+export const deleteFolder = (_id: string | Types.ObjectId, user: string | Types.ObjectId, softDelete = true) => {
+    if (!softDelete) {
+        return Folder.findOneAndDelete({ _id: _id });
+    }
     return Folder.findOneAndUpdate({ _id: _id }, { $set: { isDeleted: true, updatedBy: user } }, { new: true })
 }

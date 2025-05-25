@@ -89,7 +89,7 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
     try {
         const { id } = req.params;
         const user = req.currentUser.id;
-        await FileService.deleteFile(id, user);
+        await FileService.deleteFile(id, user, false /* hard deleting the file for now */);
 
         res.status(200).json({
             success: true,

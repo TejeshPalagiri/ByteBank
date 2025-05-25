@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DownloadCloud, FileText, Trash2, Folder, Eye, CloudUploadIcon } from "lucide-react";
+import { FileText, Trash2, Folder, Eye, CloudUploadIcon } from "lucide-react";
 import { IFile } from "@/interfaces/File";
 import { IFolder } from "@/interfaces/Folder";
 
 import * as FileService from "../services/rest/file.service";
 import * as FolderService from "../services/rest/folder.service";
+import UploadDialog from "./UploadDialog";
 
 export default function FileUpload() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -14,6 +15,7 @@ export default function FileUpload() {
     const [folders, setFolders] = useState<IFolder[]>([]);
     const [currentPath, setCurrentPath] = useState<string>("");
     const [currentFolder, setCurrentFolder] = useState<string>("");
+    const [isUploadOpen, setIsUploadOpen] = useState(false);
 
     useEffect(() => {
         // Fetch files and folders from the server
@@ -48,7 +50,7 @@ export default function FileUpload() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded"
                 />
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2" onClick={ () =>  setIsUploadOpen(true) }>
                     <CloudUploadIcon size={16} /> Upload
                 </Button>
             </div>
@@ -130,6 +132,9 @@ export default function FileUpload() {
                     No files or folders found
                 </p>
             )}
+            <div className="p-6">
+                <UploadDialog open={isUploadOpen} setOpen={setIsUploadOpen} currentFolder={currentFolder} />
+            </div>
         </div>
     );
 }

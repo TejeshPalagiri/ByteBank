@@ -67,7 +67,17 @@ folderSchema.post("save", async function(doc) {
 
 folderSchema.post("findOneAndUpdate", async (doc) => {
     if(doc.isDeleted) {
-        await S3.createFolderInBucket(doc.path, doc.isDeleted);
+        // await S3.createFolderInBucket(doc.path, doc.isDeleted); 
+        // TODO: Need to archive the folder instead of deleting it from s3
     }
 })
+
+folderSchema.pre("findOneAndDelete", async function (next) {
+    const doc = await this.model.findOne(this.getQuery());
+    if(doc) {
+        await S3.createFolderInBucket(doc.key, true);
+    }
+    next();
+})
+
 export const Folder = model<IFolder>("Folder", folderSchema);
