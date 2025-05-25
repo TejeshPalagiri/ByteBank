@@ -18,11 +18,13 @@ import HttpClient from "@/services/axioxHttp";
 export default function UploadDialog({
     open,
     setOpen,
-    currentFolder
+    currentFolder,
+    setRefresh
 }: {
     open: boolean;
     setOpen: (value: boolean) => void;
     currentFolder: string;
+    setRefresh: (value: any) => void;
 }) {
     useEffect(() => {
         if (open) {
@@ -75,6 +77,7 @@ export default function UploadDialog({
                                 });
                                 if(uploadResponse.status === 200 || uploadResponse.status === 201) {
                                     OpenToast("SUCCESS", "File uploaded successfully.");
+                                    setRefresh((prev) => !prev);
                                     return;
                                 }
                                 throw new Error("File Upload Failed")
