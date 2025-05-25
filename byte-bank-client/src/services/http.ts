@@ -2,6 +2,7 @@ import axios from "axios";
 import * as constants from "../constants";
 import * as CookieService from "./cookies.service";
 import * as SharedService from "./shared.service";
+import { ORGANIZATION } from "../constants";
 
 const HttpClient = axios.create({
     baseURL: `${constants.SERVER_URL}`,
@@ -28,7 +29,7 @@ HttpClient.interceptors.request.use(
         }
 
         if (organization) {
-            config.headers["x-header-organization"] = organization;
+            config.headers["x-header-organization"] = organization || ORGANIZATION;
         }
 
         if (space) {
