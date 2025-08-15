@@ -4,3 +4,4 @@ dist/
 .env
 .git
 .editorconfig
+byte-bank-client/
