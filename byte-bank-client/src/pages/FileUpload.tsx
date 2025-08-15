@@ -16,6 +16,7 @@ export default function FileUpload() {
     const [currentPath, setCurrentPath] = useState<string>("");
     const [currentFolder, setCurrentFolder] = useState<string>("");
     const [isUploadOpen, setIsUploadOpen] = useState(false);
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
         // Fetch files and folders from the server
@@ -30,7 +31,7 @@ export default function FileUpload() {
             }
         };
         fetchFilesAndFolders();
-    }, [currentFolder]);
+    }, [currentFolder, refresh]);
 
     const filteredFiles = files.filter((file) =>
         file.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -39,6 +40,15 @@ export default function FileUpload() {
     const filteredFolders = folders.filter((folder) =>
         folder.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const deleteFile = async (fileId: string) => {
+        try {
+            await FileService.deleteFile(fileId);
+            setRefresh((prev) => !prev); // Trigger a refresh after deletion
+        } catch (error) {
+            console.error("Error deleting file:", error);
+        }
+    };
 
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
@@ -94,7 +104,7 @@ export default function FileUpload() {
                             <Button
                                 size="icon"
                                 className="bg-red-600 hover:bg-red-700"
-                                onClick={() => {}}
+                                onClick={() => deleteFile(file._id)}
                             >
                                 <Trash2 className="w-4 h-4" />
                             </Button>
@@ -133,7 +143,7 @@ export default function FileUpload() {
                 </p>
             )}
             <div className="p-6">
-                <UploadDialog open={isUploadOpen} setOpen={setIsUploadOpen} currentFolder={currentFolder} />
+                <UploadDialog open={isUploadOpen} setOpen={setIsUploadOpen} currentFolder={currentFolder} setRefresh={setRefresh} />
             </div>
         </div>
     );
