@@ -9,6 +9,8 @@ import * as FileService from "../services/rest/file.service";
 import * as FolderService from "../services/rest/folder.service";
 import UploadDialog from "./UploadDialog";
 
+const placeHolderImage = "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
+
 export default function FileUpload() {
     const [searchTerm, setSearchTerm] = useState("");
     const [files, setFiles] = useState<IFile[]>([]);
@@ -88,7 +90,7 @@ export default function FileUpload() {
                         <div className=" flex items-center justify-center mt-2 text-center text-sm truncate w-full">
                             {file.mimeType.startsWith("image/") ? (
                                 <img
-                                    src={file?.thumbnail || file?.signedUrl}
+                                    src={ placeHolderImage || file?.thumbnail || file?.signedUrl}
                                     alt={file.name}
                                     className="w-12 h-12 object-cover rounded"
                                     loading="lazy"
