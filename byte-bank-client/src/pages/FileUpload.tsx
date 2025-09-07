@@ -15,7 +15,7 @@ export default function FileUpload() {
     const [searchTerm, setSearchTerm] = useState("");
     const [files, setFiles] = useState<IFile[]>([]);
     const [folders, setFolders] = useState<IFolder[]>([]);
-    const [currentPath, setCurrentPath] = useState<string>("");
+    const [, setCurrentPath] = useState<string>("");
     const [currentFolder, setCurrentFolder] = useState<string>("");
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [refresh, setRefresh] = useState(false);

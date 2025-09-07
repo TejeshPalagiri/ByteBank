@@ -39,7 +39,6 @@ export default function Login() {
         register,
         handleSubmit,
         formState: { errors },
-        setValue
     } = useForm();
     return (
         <div className="flex items-center justify-center min-h-screen bg-purple-100 font-mono">
