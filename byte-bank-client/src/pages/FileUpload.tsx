@@ -23,6 +23,7 @@ import {
     BreadcrumbList,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const placeHolderImage =
     "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
@@ -37,21 +38,35 @@ export default function FileUpload() {
     const [currentFolder, setCurrentFolder] = useState<string>("");
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [refresh, setRefresh] = useState(false);
+    const [page, setPage] = useState<number>(1);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
-    useEffect(() => {
-        // Fetch files and folders from the server
-        const fetchFilesAndFolders = async () => {
-            try {
-                const filesData = await FileService.getAllFiles(currentFolder);
+    const fetchFilesAndFolders = async () => {
+        try {
+            console.log("PAGE++++", page);
+            const filesData = await FileService.getAllFiles(
+                currentFolder,
+                page
+            );
+            // As we're fetching all the folders at the beggining no need of fetching all the times when page changes
+            if (page === 1) {
                 const foldersData = await FolderService.getAllFolders(
                     currentFolder
                 );
-                setFiles(filesData?.data || []);
                 setFolders(foldersData?.data || []);
-            } catch (error) {
-                console.error("Error fetching files and folders:", error);
             }
-        };
+            if (filesData.data?.length < 50) {
+                setHasMore(false);
+            }
+            setPage((prev) => prev + 1);
+            setFiles((prev) => [...prev, ...filesData?.data, ...[]]);
+        } catch (error) {
+            console.error("Error fetching files and folders:", error);
+        }
+    };
+
+    useEffect(() => {
+        // Fetch files and folders from the server
         fetchFilesAndFolders();
     }, [currentFolder, refresh]);
 
@@ -72,8 +87,16 @@ export default function FileUpload() {
         }
     };
 
+    const resetStates = () => {
+        setPage(1);
+        setHasMore(true);
+        setFiles([]);
+        setFolders([]);
+    };
+
     const handleOnNavigating = (crumb: IBreadCrumbPath, index: number) => {
         if (index === navStack.length - 1) return;
+        resetStates();
         setCurrentFolder(crumb.value);
         setNavStack((prev) => {
             console.log(prev);
@@ -101,12 +124,12 @@ export default function FileUpload() {
                     <CloudUploadIcon size={16} /> Upload
                 </Button>
             </div>
-            <div className="w-full p-4 mb-2">
+            <div className="p-4 mb-2">
                 <Breadcrumb>
                     <BreadcrumbList>
                         {navStack.map((e, i) => (
                             <>
-                                <BreadcrumbItem key={i}>
+                                <BreadcrumbItem>
                                     <BreadcrumbLink
                                         className={
                                             currentFolder !== e.value
@@ -129,70 +152,79 @@ export default function FileUpload() {
                     </BreadcrumbList>
                 </Breadcrumb>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {filteredFolders.map((folder) => (
-                    <div
-                        key={folder._id}
-                        onClick={() => {
-                            setCurrentFolder(folder._id);
-                            setNavStack((prev) => [
-                                ...prev,
-                                { title: folder?.name, value: folder._id },
-                            ]);
-                        }}
-                        className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
-                    >
-                        <Folder className="w-12 h-12 text-yellow-400" />
-                        <p className="mt-2 text-center text-sm truncate w-full">
-                            {folder.name}
-                        </p>
-                    </div>
-                ))}
-                {filteredFiles.map((file) => (
-                    <div
-                        key={file._id}
-                        className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
-                    >
-                        <div className=" flex items-center justify-center mt-2 text-center text-sm truncate w-full">
-                            {file.mimeType.startsWith("image/") ? (
-                                <img
-                                    src={
-                                        placeHolderImage ||
-                                        file?.thumbnail ||
-                                        file?.signedUrl
-                                    }
-                                    alt={file.name}
-                                    className="w-12 h-12 object-cover rounded"
-                                    loading="lazy"
-                                />
-                            ) : (
-                                <FileText className="w-12 h-12 text-blue-400" />
-                            )}
+            <InfiniteScroll
+                dataLength={files.length + folders.length}
+                next={fetchFilesAndFolders}
+                hasMore={hasMore}
+                scrollThreshold={0.9}
+                loader={<p className="text-center py-4 text-sm">Loading...</p>}
+            >
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {filteredFolders.map((folder) => (
+                        <div
+                            key={folder._id}
+                            onClick={() => {
+                                resetStates();
+                                setCurrentFolder(folder._id);
+                                setNavStack((prev) => [
+                                    ...prev,
+                                    { title: folder?.name, value: folder._id },
+                                ]);
+                            }}
+                            className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
+                        >
+                            <Folder className="w-12 h-12 text-yellow-400" />
+                            <p className="mt-2 text-center text-sm truncate w-full">
+                                {folder.name}
+                            </p>
                         </div>
-                        <p className="mt-2 text-center text-sm truncate w-full">
-                            {file.name}
-                        </p>
-                        <div className="flex space-x-2 mt-2">
-                            <Button
-                                size="icon"
-                                className="bg-red-600 hover:bg-red-700"
-                                onClick={() => deleteFile(file._id)}
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                                size="icon"
-                                variant="outline"
-                                onClick={() => {
-                                    window.open(file.signedUrl, "_blank");
-                                }}
-                            >
-                                <Eye className="w-4 h-4" />
-                            </Button>
+                    ))}
+                    {filteredFiles.map((file) => (
+                        <div
+                            key={file._id}
+                            className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
+                        >
+                            <div className=" flex items-center justify-center mt-2 text-center text-sm truncate w-full">
+                                {file.mimeType.startsWith("image/") ? (
+                                    <img
+                                        src={
+                                            placeHolderImage ||
+                                            file?.thumbnail ||
+                                            file?.signedUrl
+                                        }
+                                        alt={file.name}
+                                        className="w-12 h-12 object-cover rounded"
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <FileText className="w-12 h-12 text-blue-400" />
+                                )}
+                            </div>
+                            <p className="mt-2 text-center text-sm truncate w-full">
+                                {file.name}
+                            </p>
+                            <div className="flex space-x-2 mt-2">
+                                <Button
+                                    size="icon"
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={() => deleteFile(file._id)}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    variant="outline"
+                                    onClick={() => {
+                                        window.open(file.signedUrl, "_blank");
+                                    }}
+                                >
+                                    <Eye className="w-4 h-4" />
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            </InfiniteScroll>
             {filteredFiles.length === 0 && filteredFolders.length === 0 && (
                 <p className="col-span-full text-center text-gray-500 mt-4">
                     No files or folders found
