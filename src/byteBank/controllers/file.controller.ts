@@ -54,7 +54,7 @@ export const getAllFiles = async (
         const owner = req.currentUser.id;
         const space = req.space;
 
-        page = _.isNaN(parseInt(page)) ? parseInt(page) : 1;
+        page = !_.isNaN(parseInt(page)) ? parseInt(page) : 1;
 
         let files = await FileService.getAll(
             parent?.length ? parent?.toString() : undefined,
