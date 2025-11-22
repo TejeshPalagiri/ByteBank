@@ -24,9 +24,9 @@ jobs:
                       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm
                       [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
                       cd ${{ secrets.BYTE_BANK_APP }} 
-                      git pull origin master &&
-                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm install &&
-                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm run build &&
-                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 start byte-bank --update-env &&
-                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 save &&
+                      git pull origin master 
+                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm install 
+                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm run build 
+                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 start byte-bank --update-env 
+                      /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 save 
                       echo "✅ Deployment successful."
