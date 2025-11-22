@@ -2,32 +2,39 @@ import { useForm } from "react-hook-form";
 import * as UserService from "../services/rest/user.service";
 import { saveDataInLocalstorage } from "@/services/shared.service";
 import { useNavigate } from "react-router-dom";
-import { saveUserSessionStatus, saveMiscTokens, getUserSessionStatus } from "@/services/cookies.service";
+import {
+    saveUserSessionStatus,
+    saveMiscTokens,
+    getUserSessionStatus,
+} from "@/services/cookies.service";
 import { getAllSpaces } from "@/services/rest/space.service";
 import { useEffect } from "react";
 
 export default function Login() {
     useEffect(() => {
         const sessionStatus = getUserSessionStatus();
-        if(sessionStatus) {
+        if (sessionStatus == "true") {
             navigate("/file-upload");
         }
-    }, [])
+    }, []);
     const navigate = useNavigate();
     async function handleLogin(data: any) {
-        const result: any = await UserService.login(data?.email, data?.password);
+        const result: any = await UserService.login(
+            data?.email,
+            data?.password
+        );
         saveUserSessionStatus(result?.success);
-        if(result?.success === true) {
+        if (result?.success === true) {
             const userDetails: any = await UserService.getCurrentUserDetails();
-            if(userDetails?.success === true) {
+            if (userDetails?.success === true) {
                 console.log("User details: ", userDetails?.data);
                 saveDataInLocalstorage("USER_DETAILS", userDetails?.data);
             }
             const spaceDetails: any = await getAllSpaces();
-            if(spaceDetails?.success === true) {
+            if (spaceDetails?.success === true) {
                 const spaces = spaceDetails?.data || [];
                 const space = spaces[0] || null;
-                if(space?._id) {
+                if (space?._id) {
                     saveMiscTokens("SPACE", space?._id);
                 }
                 saveDataInLocalstorage("SPACE_DETAILS", spaceDetails?.data);
@@ -59,7 +66,10 @@ export default function Login() {
                     </span>
                     <hr className="w-full mt-3 border-gray-300" />
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit(handleLogin)}>
+                <form
+                    className="mt-8 space-y-6"
+                    onSubmit={handleSubmit(handleLogin)}
+                >
                     <div className="space-y-4">
                         <div>
                             <label htmlFor="email" className="sr-only">
