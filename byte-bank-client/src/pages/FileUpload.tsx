@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Trash2, Folder, Eye, CloudUploadIcon } from "lucide-react";
+import {
+    FileText,
+    Trash2,
+    Folder,
+    Eye,
+    CloudUploadIcon,
+    SlashIcon,
+} from "lucide-react";
 import { IFile } from "@/interfaces/File";
 import { IFolder } from "@/interfaces/Folder";
 
 import * as FileService from "../services/rest/file.service";
 import * as FolderService from "../services/rest/folder.service";
 import UploadDialog from "./UploadDialog";
+import { IBreadCrumbPath } from "@/interfaces/FilesPage";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-const placeHolderImage = "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png"
+const placeHolderImage =
+    "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
 
 export default function FileUpload() {
     const [searchTerm, setSearchTerm] = useState("");
     const [files, setFiles] = useState<IFile[]>([]);
     const [folders, setFolders] = useState<IFolder[]>([]);
-    const [, setCurrentPath] = useState<string>("");
+    const [navStack, setNavStack] = useState<Array<IBreadCrumbPath>>([
+        { title: "Home", value: "" },
+    ]);
     const [currentFolder, setCurrentFolder] = useState<string>("");
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [refresh, setRefresh] = useState(false);
@@ -25,7 +43,9 @@ export default function FileUpload() {
         const fetchFilesAndFolders = async () => {
             try {
                 const filesData = await FileService.getAllFiles(currentFolder);
-                const foldersData = await FolderService.getAllFolders(currentFolder);
+                const foldersData = await FolderService.getAllFolders(
+                    currentFolder
+                );
                 setFiles(filesData?.data || []);
                 setFolders(foldersData?.data || []);
             } catch (error) {
@@ -52,9 +72,20 @@ export default function FileUpload() {
         }
     };
 
+    const handleOnNavigating = (crumb: IBreadCrumbPath, index: number) => {
+        if (index === navStack.length - 1) return;
+        setCurrentFolder(crumb.value);
+        setNavStack((prev) => {
+            console.log(prev);
+            let currentNavStack = [...prev];
+            currentNavStack.splice(index + 1);
+            return currentNavStack;
+        });
+    };
+
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-2">
                 <Input
                     type="text"
                     placeholder="Search files and folders..."
@@ -62,9 +93,41 @@ export default function FileUpload() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded"
                 />
-                <Button variant="outline" className="flex items-center gap-2" onClick={ () =>  setIsUploadOpen(true) }>
+                <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={() => setIsUploadOpen(true)}
+                >
                     <CloudUploadIcon size={16} /> Upload
                 </Button>
+            </div>
+            <div className="w-full p-4 mb-2">
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        {navStack.map((e, i) => (
+                            <>
+                                <BreadcrumbItem key={i}>
+                                    <BreadcrumbLink
+                                        className={
+                                            currentFolder !== e.value
+                                                ? "cursor-pointer"
+                                                : "cursor-not-allowed"
+                                        }
+                                        onClick={() => handleOnNavigating(e, i)}
+                                    >
+                                        {e.title}
+                                    </BreadcrumbLink>
+                                </BreadcrumbItem>
+                                {/* Show the slash icon only for the last item */}
+                                {i != navStack?.length - 1 && (
+                                    <BreadcrumbSeparator>
+                                        <SlashIcon />
+                                    </BreadcrumbSeparator>
+                                )}
+                            </>
+                        ))}
+                    </BreadcrumbList>
+                </Breadcrumb>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {filteredFolders.map((folder) => (
@@ -72,7 +135,10 @@ export default function FileUpload() {
                         key={folder._id}
                         onClick={() => {
                             setCurrentFolder(folder._id);
-                            setCurrentPath((prev) => `${prev}/${folder.name}`);
+                            setNavStack((prev) => [
+                                ...prev,
+                                { title: folder?.name, value: folder._id },
+                            ]);
                         }}
                         className="p-4 bg-gray-800 rounded-lg shadow-lg hover:bg-gray-700 transition cursor-pointer flex flex-col items-center justify-center"
                     >
@@ -90,7 +156,11 @@ export default function FileUpload() {
                         <div className=" flex items-center justify-center mt-2 text-center text-sm truncate w-full">
                             {file.mimeType.startsWith("image/") ? (
                                 <img
-                                    src={ placeHolderImage || file?.thumbnail || file?.signedUrl}
+                                    src={
+                                        placeHolderImage ||
+                                        file?.thumbnail ||
+                                        file?.signedUrl
+                                    }
                                     alt={file.name}
                                     className="w-12 h-12 object-cover rounded"
                                     loading="lazy"
@@ -119,22 +189,6 @@ export default function FileUpload() {
                             >
                                 <Eye className="w-4 h-4" />
                             </Button>
-                            {/* <Button
-                                size="icon"
-                                variant="outline"
-                                onClick={() => {
-                                    // download file logic here
-                                    const link = document.createElement("a");
-                                    link.href = file.signedUrl;
-                                    link.setAttribute("download", file.name);
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    link.target = "_blank";
-                                    document.body.removeChild(link);
-                                }}
-                            >
-                                <DownloadCloud className="w-4 h-4" />
-                            </Button> */}
                         </div>
                     </div>
                 ))}
@@ -145,7 +199,12 @@ export default function FileUpload() {
                 </p>
             )}
             <div className="p-6">
-                <UploadDialog open={isUploadOpen} setOpen={setIsUploadOpen} currentFolder={currentFolder} setRefresh={setRefresh} />
+                <UploadDialog
+                    open={isUploadOpen}
+                    setOpen={setIsUploadOpen}
+                    currentFolder={currentFolder}
+                    setRefresh={setRefresh}
+                />
             </div>
         </div>
     );
