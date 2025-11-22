@@ -5,7 +5,7 @@ import {
     DialogTitle,
     DialogClose,
 } from "@/components/ui/dialog";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IFile } from "@/interfaces/File";
@@ -14,12 +14,13 @@ import * as FileService from "@/services/rest/file.service";
 import { OpenToast } from "@/services/shared.service";
 import { Button } from "@/components/ui/button";
 import HttpClient from "@/services/axioxHttp";
+import _ from "lodash";
 
 export default function UploadDialog({
     open,
     setOpen,
     currentFolder,
-    setRefresh
+    setRefresh,
 }: {
     open: boolean;
     setOpen: (value: boolean) => void;
@@ -28,28 +29,50 @@ export default function UploadDialog({
 }) {
     useEffect(() => {
         if (open) {
-            setFile(null);
+            setFiles(null);
         }
     }, [open]);
-    const [file, setFile] = useState<File | null>(null);
+
+    const [files, setFiles] = useState<File | File[] | FileList | null>();
     const [description, setDescription] = useState<string>("");
+    const [filesList, setFilesList] = useState<string>("");
+    const fileUploadRef = useRef<HTMLInputElement>(null);
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const dropped = e.dataTransfer.files?.[0];
-        if (dropped) setFile(dropped);
+        const dropped = e.dataTransfer.files;
+        if (dropped) {
+            setFiles(dropped);
+            setFilesList(_.map(dropped, (f) => f.name).join(", "));
+        }
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = e.target.files?.[0];
-        if (selected) setFile(selected);
+        const selected = e.target.files;
+        if (selected) {
+            setFiles(selected);
+            setFilesList(_.map(selected, (f) => f.name).join(", "));
+        }
     };
 
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleDescriptionChange = (
+        e: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
         setDescription(e.target.value);
     };
 
-    const onUploadFile = async () => {
+    const handleOnUpload = async () => {
+        if (!_.isNull(files)) {
+            let promises: Array<Promise<void>> = [];
+            _.forEach(files, (f) => {
+                promises.push(onUploadFile(f));
+            });
+            await Promise.all(promises);
+        }
+        setFilesList("");
+    };
+
+    const onUploadFile = async (file: File): Promise<void> => {
         try {
             if (file) {
                 const filePayload: IFile = {
@@ -58,29 +81,48 @@ export default function UploadDialog({
                     size: file.size,
                     description: description || "",
                     parent: currentFolder || undefined,
-                }
+                };
 
-                const fileRecordResponse: any = await FileService.createFile(filePayload);
+                const fileRecordResponse: any = await FileService.createFile(
+                    filePayload
+                );
                 if (fileRecordResponse?.success) {
                     const fileRecord = fileRecordResponse?.data;
                     const key = fileRecord[0].key;
                     const fileId = fileRecord[0].id;
                     try {
-                        const presignedUrlResponse: any = await FileService.fetchPresignedUploadURL(key, filePayload?.mimeType);
+                        const presignedUrlResponse: any =
+                            await FileService.fetchPresignedUploadURL(
+                                key,
+                                filePayload?.mimeType
+                            );
                         if (presignedUrlResponse?.success) {
-                            const presignedUrl = presignedUrlResponse?.data?.url;
+                            const presignedUrl =
+                                presignedUrlResponse?.data?.url;
                             if (presignedUrl) {
-                                const uploadResponse = await HttpClient.put(presignedUrl, file, {
-                                    headers: {
-                                        "Content-Type": filePayload?.mimeType || "application/octet-stream", // Default if MIME type is not found
-                                    },
-                                });
-                                if(uploadResponse.status === 200 || uploadResponse.status === 201) {
-                                    OpenToast("SUCCESS", "File uploaded successfully.");
+                                const uploadResponse = await HttpClient.put(
+                                    presignedUrl,
+                                    file,
+                                    {
+                                        headers: {
+                                            "Content-Type":
+                                                filePayload?.mimeType ||
+                                                "application/octet-stream", // Default if MIME type is not found
+                                        },
+                                    }
+                                );
+                                if (
+                                    uploadResponse.status === 200 ||
+                                    uploadResponse.status === 201
+                                ) {
+                                    OpenToast(
+                                        "SUCCESS",
+                                        "File uploaded successfully."
+                                    );
                                     setRefresh((prev) => !prev);
                                     return;
                                 }
-                                throw new Error("File Upload Failed")
+                                throw new Error("File Upload Failed");
                             }
                         }
                     } catch (error) {
@@ -92,7 +134,7 @@ export default function UploadDialog({
         } catch (error) {
             OpenToast("ERROR", "File upload failed");
         }
-    }
+    };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -104,29 +146,36 @@ export default function UploadDialog({
                 <div
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
-                    onClick={() => document.getElementById("fileInput")?.click()}
+                    onClick={() =>
+                        document.getElementById("fileInput")?.click()
+                    }
                     className={cn(
                         "mt-4 flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 rounded-xl p-8 cursor-pointer hover:border-blue-400 transition",
-                        file && "border-green-500"
+                        filesList?.length && "border-green-500"
                     )}
                 >
                     <UploadCloud className="w-10 h-10 mb-2 text-zinc-400" />
                     <p className="text-sm text-zinc-400">
-                        {file ? file.name : "Click or drag a file to upload"}
+                        {files ? filesList : "Click or drag a file to upload"}
                     </p>
                     <input
                         id="fileInput"
                         type="file"
                         onChange={handleFileChange}
                         className="hidden"
+                        ref={fileUploadRef}
+                        multiple
                     />
                 </div>
                 <div className="mt-4">
-                    <Textarea placeholder="Describe the file here." onInput={handleDescriptionChange} />
+                    <Textarea
+                        placeholder="Describe the file here."
+                        onInput={handleDescriptionChange}
+                    />
                 </div>
 
                 <DialogClose asChild>
-                    <Button onClick={onUploadFile} className="mt-4 w-full">
+                    <Button onClick={handleOnUpload} className="mt-4 w-full">
                         Upload
                     </Button>
                     {/* <button
