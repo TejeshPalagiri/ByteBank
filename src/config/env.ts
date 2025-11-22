@@ -15,7 +15,7 @@ if (fs.existsSync(path.join(__dirname, "../../.env"))) {
 
 export const PORT = process.env.PORT || 3000;
 export const ENVIRONMENT = process.env.NODE_ENV || "Development";
-export const APP_NAME = process.env.APP_NAME || "Puppy Talks";
+export const APP_NAME = process.env.APP_NAME || "Byte Bank";
 export const JWT_ACCESS_TOKEN_SECRET =
     process.env.JWT_ACCESS_TOKEN_SECRET ||
     "JgDatenwishdaj&whwhjq#eushshwj@dhshaDarq";
@@ -41,15 +41,24 @@ export const CRYPTO_PRIVATE_KEY =
 export const SUPER_USER_TOKEN = process.env.SUPER_USER_TOKEN;
 
 // Forgot password token expiry
-export const RESET_PASSWORD_EXPIRY = !_.isNaN(parseInt(process.env.RESET_PASSWORD_EXPIRY)) ? parseInt(process.env.RESET_PASSWORD_EXPIRY) : 5;
+export const RESET_PASSWORD_EXPIRY = !_.isNaN(
+    parseInt(process.env.RESET_PASSWORD_EXPIRY)
+)
+    ? parseInt(process.env.RESET_PASSWORD_EXPIRY)
+    : 5;
 
-
-// Bytes bank 
+// Bytes bank
 export const AWS = {
     S3: {
         ACCESS_KEY: process.env.ACCESS_KEY,
         SECRET: process.env.SECRET,
         REGION: process.env.REGION,
-        BUCKET: process.env.BUCKET
-    }
-}
+        BUCKET: process.env.BUCKET,
+    },
+};
+
+export const MAX_ENTITIES_PER_PAGE = !_.isNaN(
+    parseInt(process.env.MAX_ENTITIES_PER_PAGE)
+)
+    ? parseInt(process.env.MAX_ENTITIES_PER_PAGE)
+    : 10;
