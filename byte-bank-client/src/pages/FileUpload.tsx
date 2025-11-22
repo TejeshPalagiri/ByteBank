@@ -73,6 +73,7 @@ export default function FileUpload() {
     };
 
     const handleOnNavigating = (crumb: IBreadCrumbPath, index: number) => {
+        if (index === navStack.length - 1) return;
         setCurrentFolder(crumb.value);
         setNavStack((prev) => {
             console.log(prev);
@@ -107,6 +108,11 @@ export default function FileUpload() {
                             <>
                                 <BreadcrumbItem key={i}>
                                     <BreadcrumbLink
+                                        className={
+                                            currentFolder !== e.value
+                                                ? "cursor-pointer"
+                                                : "cursor-not-allowed"
+                                        }
                                         onClick={() => handleOnNavigating(e, i)}
                                     >
                                         {e.title}
@@ -183,22 +189,6 @@ export default function FileUpload() {
                             >
                                 <Eye className="w-4 h-4" />
                             </Button>
-                            {/* <Button
-                                size="icon"
-                                variant="outline"
-                                onClick={() => {
-                                    // download file logic here
-                                    const link = document.createElement("a");
-                                    link.href = file.signedUrl;
-                                    link.setAttribute("download", file.name);
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    link.target = "_blank";
-                                    document.body.removeChild(link);
-                                }}
-                            >
-                                <DownloadCloud className="w-4 h-4" />
-                            </Button> */}
                         </div>
                     </div>
                 ))}
