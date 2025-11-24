@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +8,8 @@ import {
     Eye,
     CloudUploadIcon,
     SlashIcon,
+    PlusIcon,
+    FolderPlusIcon,
 } from "lucide-react";
 import { IFile } from "@/interfaces/File";
 import { IFolder } from "@/interfaces/Folder";
@@ -24,6 +26,12 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import InfiniteScroll from "react-infinite-scroll-component";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 const placeHolderImage =
     "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
@@ -40,10 +48,10 @@ export default function FileUpload() {
     const [refresh, setRefresh] = useState(false);
     const [page, setPage] = useState<number>(1);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [isFolderCreate, setIsFolderCreate] = useState<boolean>(false);
 
     const fetchFilesAndFolders = async () => {
         try {
-            console.log("PAGE++++", page);
             const filesData = await FileService.getAllFiles(
                 currentFolder,
                 page
@@ -99,7 +107,6 @@ export default function FileUpload() {
         resetStates();
         setCurrentFolder(crumb.value);
         setNavStack((prev) => {
-            console.log(prev);
             let currentNavStack = [...prev];
             currentNavStack.splice(index + 1);
             return currentNavStack;
@@ -116,19 +123,45 @@ export default function FileUpload() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded"
                 />
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => setIsUploadOpen(true)}
-                >
-                    <CloudUploadIcon size={16} /> Upload
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Button
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            <PlusIcon size={16} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>
+                            <Button
+                                variant="outline"
+                                className=""
+                                onClick={() => {
+                                    setIsUploadOpen(true);
+                                    setIsFolderCreate(true);
+                                }}
+                            >
+                                <FolderPlusIcon size={16} /> Create Folder
+                            </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Button
+                                variant="outline"
+                                className=""
+                                onClick={() => setIsUploadOpen(true)}
+                            >
+                                <CloudUploadIcon size={16} /> Upload
+                            </Button>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="p-4 mb-2">
                 <Breadcrumb>
                     <BreadcrumbList>
                         {navStack.map((e, i) => (
-                            <>
+                            <React.Fragment key={e.value}>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
                                         className={
@@ -147,7 +180,7 @@ export default function FileUpload() {
                                         <SlashIcon />
                                     </BreadcrumbSeparator>
                                 )}
-                            </>
+                            </React.Fragment>
                         ))}
                     </BreadcrumbList>
                 </Breadcrumb>
@@ -236,6 +269,7 @@ export default function FileUpload() {
                     setOpen={setIsUploadOpen}
                     currentFolder={currentFolder}
                     setRefresh={setRefresh}
+                    isFolderCreate={isFolderCreate}
                 />
             </div>
         </div>
