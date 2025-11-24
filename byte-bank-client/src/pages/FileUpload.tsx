@@ -66,7 +66,6 @@ export default function FileUpload() {
             if (filesData.data?.length < 50) {
                 setHasMore(false);
             }
-            setPage((prev) => prev + 1);
             setFiles((prev) => [...prev, ...filesData?.data, ...[]]);
         } catch (error) {
             console.error("Error fetching files and folders:", error);
@@ -75,8 +74,13 @@ export default function FileUpload() {
 
     useEffect(() => {
         // Fetch files and folders from the server
-        fetchFilesAndFolders();
+        resetStates();
     }, [currentFolder, refresh]);
+
+    useEffect(() => {
+        // Fetch files and folders from the server
+        fetchFilesAndFolders();
+    }, [currentFolder, refresh, page]);
 
     const filteredFiles = files.filter((file) =>
         file.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -112,7 +116,10 @@ export default function FileUpload() {
             return currentNavStack;
         });
     };
-
+    const handleLoadMore = () => {
+        if (!hasMore) return; // optional guard
+        setPage((prev) => prev + 1); // 👈 increment page here
+    };
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
             <div className="flex items-center gap-4 mb-2">
@@ -187,7 +194,7 @@ export default function FileUpload() {
             </div>
             <InfiniteScroll
                 dataLength={files.length + folders.length}
-                next={fetchFilesAndFolders}
+                next={handleLoadMore}
                 hasMore={hasMore}
                 scrollThreshold={0.9}
                 loader={<p className="text-center py-4 text-sm">Loading...</p>}
