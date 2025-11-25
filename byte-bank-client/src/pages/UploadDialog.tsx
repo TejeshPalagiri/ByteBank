@@ -71,6 +71,7 @@ export default function UploadDialog({
     const handleOnUpload = async () => {
         if (isFolderCreate) {
             await onCreateFolder();
+            setRefresh((prev) => !prev);
             return;
         }
         if (!_.isNull(files)) {
@@ -79,8 +80,8 @@ export default function UploadDialog({
                 promises.push(onUploadFile(f));
             });
             await Promise.all(promises);
+            setRefresh((prev) => !prev);
         }
-        setRefresh((prev) => !prev);
         setFilesList("");
     };
 
