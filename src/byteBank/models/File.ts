@@ -113,6 +113,7 @@ const fileSchema = new Schema<IFile>({
     toObject: { virtuals: true }
 })
 
+fileSchema.index({ name: 1, owner: 1 })
 fileSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
 fileSchema.virtual('signedUrl')
     .get(function (this: IFile) {

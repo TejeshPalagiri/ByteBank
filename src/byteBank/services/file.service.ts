@@ -65,3 +65,8 @@ export const deleteFile = async (
         { new: true }
     );
 };
+
+
+export const getFileByName = async (name: string, owner : string | Types.ObjectId) => {
+    return File.findOne({ name, owner });
+}

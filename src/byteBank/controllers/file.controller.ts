@@ -4,6 +4,8 @@ import WobbleAuthError from "../../utils/WobbleAuthError";
 import * as _ from "lodash";
 import * as S3 from "../utils/s3.utils";
 import * as FolderService from "../services/folder.service";
+import * as utils from "../utils";
+import { IFile } from "../models/File";
 
 export const createFile = async (
     req: Request,
@@ -81,7 +83,13 @@ export const getFileById = async (
     try {
         const owner = req.currentUser.id;
         const { id } = req.params;
-        let files = await FileService.getById(id, owner);
+        let files: IFile;
+
+        if(utils.isMongoId(id)) {
+            files = await FileService.getById(id, owner);
+        } else {
+            files = await FileService.getFileByName(id, owner);
+        }
 
         res.status(200).json({
             success: true,
