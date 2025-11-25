@@ -99,6 +99,11 @@ export default function FileUpload() {
         }
     };
 
+    const deleteFolder = async (folderId: string) => {
+        await FolderService.deleteFolder(folderId);
+        setRefresh((prev) => !prev);
+    };
+
     const resetStates = () => {
         setPage(1);
         setHasMore(true);
@@ -143,7 +148,7 @@ export default function FileUpload() {
                         <DropdownMenuItem>
                             <Button
                                 variant="outline"
-                                className=""
+                                className="w-full"
                                 onClick={() => {
                                     setIsUploadOpen(true);
                                     setIsFolderCreate(true);
@@ -155,7 +160,7 @@ export default function FileUpload() {
                         <DropdownMenuItem>
                             <Button
                                 variant="outline"
-                                className=""
+                                className="w-full"
                                 onClick={() => setIsUploadOpen(true)}
                             >
                                 <CloudUploadIcon size={16} /> Upload
@@ -203,7 +208,8 @@ export default function FileUpload() {
                     {filteredFolders.map((folder) => (
                         <div
                             key={folder._id}
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 resetStates();
                                 setCurrentFolder(folder._id);
                                 setNavStack((prev) => [
@@ -217,6 +223,18 @@ export default function FileUpload() {
                             <p className="mt-2 text-center text-sm truncate w-full">
                                 {folder.name}
                             </p>
+                            <div className="flex space-x-2 mt-2">
+                                <Button
+                                    size="icon"
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteFolder(folder._id);
+                                    }}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
                         </div>
                     ))}
                     {filteredFiles.map((file) => (

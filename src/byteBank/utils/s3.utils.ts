@@ -2,11 +2,10 @@ import AWS from "aws-sdk";
 import * as config from "../../config";
 import * as _ from "lodash";
 
-
 AWS.config.update({
     accessKeyId: config.AWS.S3.ACCESS_KEY,
     secretAccessKey: config.AWS.S3.SECRET,
-    region: config.AWS.S3.REGION
+    region: config.AWS.S3.REGION,
 });
 
 export interface FILE_UPLOAD_PARAMS {
@@ -20,30 +19,34 @@ export const getUploadPresignedUrl = (uploadParams: FILE_UPLOAD_PARAMS) => {
     const params = {
         Bucket: config.AWS.S3.BUCKET,
         Key: uploadParams.key,
-        ContentType: uploadParams.mimeType
+        ContentType: uploadParams.mimeType,
     };
 
     return s3.getSignedUrl("putObject", params);
-}
+};
 
 export const getFilePresignedURl = (key: string, expires: number = 36000) => {
     const params = {
         Bucket: config.AWS.S3.BUCKET,
         Key: key,
-        Expires: expires
+        Expires: expires,
     };
 
     return s3.getSignedUrl("getObject", params);
-}
+};
 
-export const uploadFile = async (key: string, body: Buffer, contentType?: string) => {
+export const uploadFile = async (
+    key: string,
+    body: Buffer,
+    contentType?: string
+) => {
     const params: any = {
         Bucket: config.AWS.S3.BUCKET,
         Key: key,
-        Body: body
+        Body: body,
     };
 
-    if(contentType) {
+    if (contentType) {
         params["ContentType"] = contentType;
         params["ContentEncoding"] = "base64";
     }
@@ -57,30 +60,32 @@ export const uploadFile = async (key: string, body: Buffer, contentType?: string
             }
         });
     });
-}
+};
 
-export const createFolderInBucket = (key: string, isDelete: boolean = false) => {
+export const createFolderInBucket = (
+    key: string,
+    isDelete: boolean = false
+) => {
     return new Promise((resolve, reject) => {
         const params = {
             Bucket: config.AWS.S3.BUCKET,
-            Key: key
-        }
+            Key: key,
+        };
 
-        if(isDelete) {
+        if (isDelete) {
             s3.deleteObject(params, (err, res) => {
-                if(!_.isEmpty(err)) {
-                    reject(err)
+                if (!_.isEmpty(err)) {
+                    reject(err);
                 }
                 resolve(res);
             });
         } else {
             s3.putObject(params, (err, res) => {
-                if(!_.isEmpty(err)) {
-                    reject(err)
+                if (!_.isEmpty(err)) {
+                    reject(err);
                 }
                 resolve(res);
             });
         }
-    
-    })
-}
+    });
+};
