@@ -80,6 +80,7 @@ export default function UploadDialog({
             });
             await Promise.all(promises);
         }
+        setRefresh((prev) => !prev);
         setFilesList("");
     };
 
@@ -92,7 +93,6 @@ export default function UploadDialog({
             };
 
             await FolderService.createFolder(folderCreatePaylaod);
-            setRefresh((prev) => !prev);
         }
     };
 
@@ -143,7 +143,6 @@ export default function UploadDialog({
                                         "SUCCESS",
                                         "File uploaded successfully."
                                     );
-                                    setRefresh((prev) => !prev);
                                     return;
                                 }
                                 throw new Error("File Upload Failed");
