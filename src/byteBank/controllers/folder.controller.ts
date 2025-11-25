@@ -94,7 +94,7 @@ export const deleteFolder = async (req: Request, res: Response, next: NextFuncti
     try {
         const { id } = req.params;
         const user = req.currentUser.id;
-        await FolderService.deleteFolder(id, user);
+        await FolderService.deleteFolder(id, user, false);
 
         res.status(200).json({
             success: true,

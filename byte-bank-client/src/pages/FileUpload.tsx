@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +8,8 @@ import {
     Eye,
     CloudUploadIcon,
     SlashIcon,
+    PlusIcon,
+    FolderPlusIcon,
 } from "lucide-react";
 import { IFile } from "@/interfaces/File";
 import { IFolder } from "@/interfaces/Folder";
@@ -24,6 +26,12 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import InfiniteScroll from "react-infinite-scroll-component";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 const placeHolderImage =
     "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
@@ -40,10 +48,10 @@ export default function FileUpload() {
     const [refresh, setRefresh] = useState(false);
     const [page, setPage] = useState<number>(1);
     const [hasMore, setHasMore] = useState<boolean>(true);
+    const [isFolderCreate, setIsFolderCreate] = useState<boolean>(false);
 
     const fetchFilesAndFolders = async () => {
         try {
-            console.log("PAGE++++", page);
             const filesData = await FileService.getAllFiles(
                 currentFolder,
                 page
@@ -58,7 +66,6 @@ export default function FileUpload() {
             if (filesData.data?.length < 50) {
                 setHasMore(false);
             }
-            setPage((prev) => prev + 1);
             setFiles((prev) => [...prev, ...filesData?.data, ...[]]);
         } catch (error) {
             console.error("Error fetching files and folders:", error);
@@ -67,8 +74,13 @@ export default function FileUpload() {
 
     useEffect(() => {
         // Fetch files and folders from the server
-        fetchFilesAndFolders();
+        resetStates();
     }, [currentFolder, refresh]);
+
+    useEffect(() => {
+        // Fetch files and folders from the server
+        fetchFilesAndFolders();
+    }, [currentFolder, refresh, page]);
 
     const filteredFiles = files.filter((file) =>
         file.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -87,6 +99,11 @@ export default function FileUpload() {
         }
     };
 
+    const deleteFolder = async (folderId: string) => {
+        await FolderService.deleteFolder(folderId);
+        setRefresh((prev) => !prev);
+    };
+
     const resetStates = () => {
         setPage(1);
         setHasMore(true);
@@ -99,13 +116,15 @@ export default function FileUpload() {
         resetStates();
         setCurrentFolder(crumb.value);
         setNavStack((prev) => {
-            console.log(prev);
             let currentNavStack = [...prev];
             currentNavStack.splice(index + 1);
             return currentNavStack;
         });
     };
-
+    const handleLoadMore = () => {
+        if (!hasMore) return; // optional guard
+        setPage((prev) => prev + 1); // 👈 increment page here
+    };
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
             <div className="flex items-center gap-4 mb-2">
@@ -116,19 +135,52 @@ export default function FileUpload() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-gray-800 text-white border border-gray-700 rounded"
                 />
-                <Button
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    onClick={() => setIsUploadOpen(true)}
-                >
-                    <CloudUploadIcon size={16} /> Upload
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Button
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            <PlusIcon size={16} />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => {
+                                    setTimeout(() => {
+                                        setIsFolderCreate(true);
+                                        setIsUploadOpen(true);
+                                    }, 0);
+                                }}
+                            >
+                                <FolderPlusIcon size={16} /> Create Folder
+                            </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => {
+                                    setTimeout(() => {
+                                        setIsFolderCreate(false);
+                                        setIsUploadOpen(true);
+                                    }, 0);
+                                }}
+                            >
+                                <CloudUploadIcon size={16} /> Upload
+                            </Button>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
             <div className="p-4 mb-2">
                 <Breadcrumb>
                     <BreadcrumbList>
                         {navStack.map((e, i) => (
-                            <>
+                            <React.Fragment key={e.value}>
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
                                         className={
@@ -147,14 +199,14 @@ export default function FileUpload() {
                                         <SlashIcon />
                                     </BreadcrumbSeparator>
                                 )}
-                            </>
+                            </React.Fragment>
                         ))}
                     </BreadcrumbList>
                 </Breadcrumb>
             </div>
             <InfiniteScroll
                 dataLength={files.length + folders.length}
-                next={fetchFilesAndFolders}
+                next={handleLoadMore}
                 hasMore={hasMore}
                 scrollThreshold={0.9}
                 loader={<p className="text-center py-4 text-sm">Loading...</p>}
@@ -163,7 +215,8 @@ export default function FileUpload() {
                     {filteredFolders.map((folder) => (
                         <div
                             key={folder._id}
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 resetStates();
                                 setCurrentFolder(folder._id);
                                 setNavStack((prev) => [
@@ -177,6 +230,18 @@ export default function FileUpload() {
                             <p className="mt-2 text-center text-sm truncate w-full">
                                 {folder.name}
                             </p>
+                            <div className="flex space-x-2 mt-2">
+                                <Button
+                                    size="icon"
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteFolder(folder._id);
+                                    }}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
                         </div>
                     ))}
                     {filteredFiles.map((file) => (
@@ -236,6 +301,7 @@ export default function FileUpload() {
                     setOpen={setIsUploadOpen}
                     currentFolder={currentFolder}
                     setRefresh={setRefresh}
+                    isFolderCreate={isFolderCreate}
                 />
             </div>
         </div>

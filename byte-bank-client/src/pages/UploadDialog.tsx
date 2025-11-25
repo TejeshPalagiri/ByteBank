@@ -15,17 +15,23 @@ import { OpenToast } from "@/services/shared.service";
 import { Button } from "@/components/ui/button";
 import HttpClient from "@/services/axioxHttp";
 import _ from "lodash";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { IFolder } from "@/interfaces/Folder";
+import * as FolderService from "../services/rest/folder.service";
 
 export default function UploadDialog({
     open,
     setOpen,
     currentFolder,
     setRefresh,
+    isFolderCreate,
 }: {
     open: boolean;
     setOpen: (value: boolean) => void;
     currentFolder: string;
     setRefresh: (value: any) => void;
+    isFolderCreate: boolean;
 }) {
     useEffect(() => {
         if (open) {
@@ -37,6 +43,7 @@ export default function UploadDialog({
     const [description, setDescription] = useState<string>("");
     const [filesList, setFilesList] = useState<string>("");
     const fileUploadRef = useRef<HTMLInputElement>(null);
+    const folderInputRef = useRef<HTMLInputElement>(null);
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -62,6 +69,10 @@ export default function UploadDialog({
     };
 
     const handleOnUpload = async () => {
+        if (isFolderCreate) {
+            await onCreateFolder();
+            return;
+        }
         if (!_.isNull(files)) {
             let promises: Array<Promise<void>> = [];
             _.forEach(files, (f) => {
@@ -69,7 +80,20 @@ export default function UploadDialog({
             });
             await Promise.all(promises);
         }
+        setRefresh((prev) => !prev);
         setFilesList("");
+    };
+
+    const onCreateFolder = async (): Promise<void> => {
+        if (folderInputRef?.current?.value?.length) {
+            const folderCreatePaylaod: IFolder = {
+                name: folderInputRef?.current?.value,
+                description: description || "",
+                parent: currentFolder || undefined,
+            };
+
+            await FolderService.createFolder(folderCreatePaylaod);
+        }
     };
 
     const onUploadFile = async (file: File): Promise<void> => {
@@ -119,7 +143,6 @@ export default function UploadDialog({
                                         "SUCCESS",
                                         "File uploaded successfully."
                                     );
-                                    setRefresh((prev) => !prev);
                                     return;
                                 }
                                 throw new Error("File Upload Failed");
@@ -140,33 +163,49 @@ export default function UploadDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Upload File</DialogTitle>
+                    <DialogTitle>
+                        {isFolderCreate ? "Create Folder" : "Upload File"}
+                    </DialogTitle>
                 </DialogHeader>
-
-                <div
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    onClick={() =>
-                        document.getElementById("fileInput")?.click()
-                    }
-                    className={cn(
-                        "mt-4 flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 rounded-xl p-8 cursor-pointer hover:border-blue-400 transition",
-                        filesList?.length && "border-green-500"
-                    )}
-                >
-                    <UploadCloud className="w-10 h-10 mb-2 text-zinc-400" />
-                    <p className="text-sm text-zinc-400">
-                        {files ? filesList : "Click or drag a file to upload"}
-                    </p>
-                    <input
-                        id="fileInput"
-                        type="file"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        ref={fileUploadRef}
-                        multiple
-                    />
-                </div>
+                {isFolderCreate ? (
+                    <div className="mt-4">
+                        <Label htmlFor="folder-title">Folder Title</Label>
+                        <Input
+                            id="folder-title"
+                            type="text"
+                            ref={folderInputRef}
+                            placeholder="Example Folder"
+                            required
+                        />
+                    </div>
+                ) : (
+                    <div
+                        onDrop={handleDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                        onClick={() =>
+                            document.getElementById("fileInput")?.click()
+                        }
+                        className={cn(
+                            "mt-4 flex flex-col items-center justify-center border-2 border-dashed border-zinc-600 rounded-xl p-8 cursor-pointer hover:border-blue-400 transition",
+                            filesList?.length && "border-green-500"
+                        )}
+                    >
+                        <UploadCloud className="w-10 h-10 mb-2 text-zinc-400" />
+                        <p className="text-sm text-zinc-400">
+                            {files
+                                ? filesList
+                                : "Click or drag a file to upload"}
+                        </p>
+                        <input
+                            id="fileInput"
+                            type="file"
+                            onChange={handleFileChange}
+                            className="hidden"
+                            ref={fileUploadRef}
+                            multiple
+                        />
+                    </div>
+                )}
                 <div className="mt-4">
                     <Textarea
                         placeholder="Describe the file here."
@@ -176,14 +215,8 @@ export default function UploadDialog({
 
                 <DialogClose asChild>
                     <Button onClick={handleOnUpload} className="mt-4 w-full">
-                        Upload
+                        {isFolderCreate ? "Create Folder" : "Upload"}
                     </Button>
-                    {/* <button
-                        className="mt-4 w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                        onClick={onUploadFile}
-                    >
-                        
-                    </button> */}
                 </DialogClose>
             </DialogContent>
         </Dialog>

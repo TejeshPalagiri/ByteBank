@@ -75,7 +75,7 @@ folderSchema.post("findOneAndUpdate", async (doc) => {
 folderSchema.pre("findOneAndDelete", async function (next) {
     const doc = await this.model.findOne(this.getQuery());
     if(doc) {
-        await S3.createFolderInBucket(doc.key, true);
+        await S3.createFolderInBucket(doc.path, true);
     }
     next();
 })
