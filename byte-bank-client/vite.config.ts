@@ -42,18 +42,6 @@ export default defineConfig(({ mode }) => {
                       },
                   }
                 : undefined,
-
-            rollupOptions: {
-                output: {
-                    // simple vendor split to improve caching
-                    manualChunks(id) {
-                        if (id.includes("node_modules")) {
-                            if (id.includes("react")) return "vendor.react";
-                            return "vendor";
-                        }
-                    },
-                },
-            },
         },
 
         optimizeDeps: {
