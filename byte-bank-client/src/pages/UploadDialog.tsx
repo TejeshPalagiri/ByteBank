@@ -218,12 +218,6 @@ export default function UploadDialog({
                     <Button onClick={handleOnUpload} className="mt-4 w-full">
                         {isFolderCreate ? "Create Folder" : "Upload"}
                     </Button>
-                    {/* <button
-                        className="mt-4 w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                        onClick={onUploadFile}
-                    >
-                        
-                    </button> */}
                 </DialogClose>
             </DialogContent>
         </Dialog>

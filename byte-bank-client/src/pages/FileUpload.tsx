@@ -150,8 +150,10 @@ export default function FileUpload() {
                                 variant="outline"
                                 className="w-full"
                                 onClick={() => {
-                                    setIsUploadOpen(true);
-                                    setIsFolderCreate(true);
+                                    setTimeout(() => {
+                                        setIsFolderCreate(true);
+                                        setIsUploadOpen(true);
+                                    }, 0);
                                 }}
                             >
                                 <FolderPlusIcon size={16} /> Create Folder
@@ -161,7 +163,11 @@ export default function FileUpload() {
                             <Button
                                 variant="outline"
                                 className="w-full"
-                                onClick={() => setIsUploadOpen(true)}
+                                onClick={() => {
+                                    setTimeout(() => {
+                                        setIsUploadOpen(true);
+                                    }, 0);
+                                }}
                             >
                                 <CloudUploadIcon size={16} /> Upload
                             </Button>
