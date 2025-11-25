@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prodbuild": "tsc -b && vite build --mode=production"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
@@ -44,6 +45,7 @@
     "globals": "^15.14.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "terser": "^5.44.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5"
