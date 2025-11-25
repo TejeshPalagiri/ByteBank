@@ -165,6 +165,7 @@ export default function FileUpload() {
                                 className="w-full"
                                 onClick={() => {
                                     setTimeout(() => {
+                                        setIsFolderCreate(false);
                                         setIsUploadOpen(true);
                                     }, 0);
                                 }}
