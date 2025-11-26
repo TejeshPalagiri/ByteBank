@@ -26,6 +26,7 @@ jobs:
                       cd ${{ secrets.BYTE_BANK_APP }} 
                       git pull origin master 
                       /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm install 
+                      export NODE_OPTIONS="--max-old-space-size=2048"
                       /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/npm run build 
                       /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 start byte-bank --update-env 
                       /home/${{secrets.EC2_USER}}/.nvm/versions/node/v22.19.0/bin/pm2 save 
