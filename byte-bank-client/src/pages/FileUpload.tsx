@@ -8,8 +8,9 @@ import {
     Eye,
     CloudUploadIcon,
     SlashIcon,
-    PlusIcon,
     FolderPlusIcon,
+    MenuIcon,
+    LogOutIcon,
 } from "lucide-react";
 import { IFile } from "@/interfaces/File";
 import { IFolder } from "@/interfaces/Folder";
@@ -32,6 +33,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
+import * as SharedService from "../services/shared.service"
 
 const placeHolderImage =
     "https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png";
@@ -125,6 +127,10 @@ export default function FileUpload() {
         if (!hasMore) return; // optional guard
         setPage((prev) => prev + 1); // 👈 increment page here
     };
+
+    const handleLogout = () => {
+        SharedService.performLogout();
+    }
     return (
         <div className="w-full p-6 bg-gray-900 text-white min-h-screen">
             <div className="flex items-center gap-4 mb-2">
@@ -141,7 +147,8 @@ export default function FileUpload() {
                             variant="outline"
                             className="flex items-center gap-2"
                         >
-                            <PlusIcon size={16} />
+                            {/* <PlusIcon size={16} /> */}
+                            <MenuIcon size={16} />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -171,6 +178,15 @@ export default function FileUpload() {
                                 }}
                             >
                                 <CloudUploadIcon size={16} /> Upload
+                            </Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={handleLogout}
+                            >
+                                <LogOutIcon size={16} /> Logout
                             </Button>
                         </DropdownMenuItem>
                     </DropdownMenuContent>

@@ -72,7 +72,7 @@ HttpClient.interceptors.response.use(
     (error) => {
         const response = error.response;
         if (response.status === 401) {
-            // SharedService.useLogout();
+            SharedService.performLogout();
         } else if (response.status === 400) {
             SharedService.OpenToast("ERROR", response?.data?.message);
         } else if (response.status === 500) {

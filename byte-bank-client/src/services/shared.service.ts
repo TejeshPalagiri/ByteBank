@@ -29,15 +29,20 @@ export const useLogout = () => {
 
     const logout = () => {
         // TODO: for now deleting all the saved cookies
-        const cookies = CookieService.getCookies();
-        if (cookies) {
-            CookieService.deleteCookies(Object.keys(cookies));
-        }
+        performLogout();
         navigate("/");
     };
 
     return logout();
 };
+
+export const performLogout = () => {
+    const cookies = CookieService.getCookies();
+    if (cookies) {
+        CookieService.deleteCookies(Object.keys(cookies));
+    }
+    window.location.href = "/#/login";
+}
 
 export const saveDataInLocalstorage = (key: string, value: any) => {
     if(typeof value !== "string") {
