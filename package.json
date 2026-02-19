@@ -23,15 +23,20 @@
   },
   "homepage": "https://github.com/TejeshPalagiri/wobble-auth#readme",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.160",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/lodash": "^4.17.10",
     "@types/node": "^22.7.5",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-esbuild": "^1.57.0",
+    "serverless-offline": "^14.4.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@vendia/serverless-express": "^4.12.6",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.9.0",
     "cookie-parser": "^1.4.7",

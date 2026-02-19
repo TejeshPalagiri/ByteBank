@@ -53,3 +53,7 @@ export const AWS = {
         BUCKET: process.env.BUCKET
     }
 }
+
+const DEPLOYMENT_TYPE = process.env.DEPLOYMENT_TYPE || "server";
+
+export const IS_SERVERLESS = DEPLOYMENT_TYPE === "serverless";

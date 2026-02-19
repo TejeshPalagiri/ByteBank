@@ -1,0 +1,46 @@
+service: bytebank-api
+
+useDotenv: true
+
+plugins:
+  - serverless-esbuild
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  architecture: arm64
+  region: ap-south-2
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 15
+
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    MONGO_DB_USER: ${env:MONGO_DB_USER}
+    MONGO_DB_PASSWORD: ${env:MONGO_DB_PASSWORD}
+    MONGO_DB_HOST: ${env:MONGO_DB_HOST}
+    MONGO_DB_DATABASE: ${env:MONGO_DB_DATABASE}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+    APP_NAME: ${env:APP_NAME}
+    JWT_ACCESS_TOKEN_SECRET:  ${env:JWT_ACCESS_TOKEN_SECRET}
+    JWT_REFRESH_TOKEN_SECRET: ${env:JWT_REFRESH_TOKEN_SECRET}
+    JWT_ACCESS_TOKEN_EXPIRY: ${env:JWT_ACCESS_TOKEN_EXPIRY}
+    JWT_REFRESH_TOKEN_EXPIRY: ${env:JWT_REFRESH_TOKEN_EXPIRY}
+    SUPER_USER_TOKEN: ${env:SUPER_USER_TOKEN}
+    CRYPTO_PRIVATE_KEY: ${env:CRYPTO_PRIVATE_KEY}
+    BUCKET: ${env:BUCKET}
+    ACCESS_KEY: ${env:ACCESS_KEY}
+    SECRET: ${env:SECRET}
+    REGION: ${env:REGION}
+    DEPLOYMENT_TYPE: ${env:DEPLOYMENT_TYPE}
+
+
+functions:
+  api:
+    handler: src/serverless.handler
+    events:
+      - httpApi: "*"
+
+
+  

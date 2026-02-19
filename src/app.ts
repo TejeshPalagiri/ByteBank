@@ -1,9 +1,18 @@
-require('./config/database/mongo');
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import * as config from "./config";
+
+// Set the mongodb connection only if not running in serverless mode
+if(config.IS_SERVERLESS) {
+    console.info("Running in serverless mode, skipping mongo connection in app.ts");
+} else {
+    console.info("Running in non-serverless mode, Utilizing mongo.ts");
+    require('./config/database/mongo');
+}
+
+
 import * as cryptoService from "./utils/crypto";
 import WobbleAuthError from "./utils/WobbleAuthError";
 import v1 from "./routers/v1";
@@ -14,7 +23,6 @@ const corsOptions = {};
 app.use(cookieParser());
 
 // Middlewares
-app.set("port", config.PORT);
 app.set("trust proxy", true)
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -24,7 +32,7 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
     req.ipAddress = Array.isArray(ipAddress) ? ipAddress[0] : ipAddress;
     req.requestId = cryptoService.generateRandomId(16);
     req.userAgent = req.headers['user-agent'];
-    console.log(`${req.requestId} : ${req.method}: ${req.originalUrl}`);
+    console.log(`${Date.now()} : ${req.requestId} : ${req.method}: ${req.originalUrl}`);
     res.setHeader('Access-Control-Expose-Headers', 'x-header-accesstoken, x-header-refreshtoken');
     next();
 };
