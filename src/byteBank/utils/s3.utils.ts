@@ -2,12 +2,13 @@ import AWS from "aws-sdk";
 import * as config from "../../config";
 import * as _ from "lodash";
 
-
-AWS.config.update({
-    accessKeyId: config.AWS.S3.ACCESS_KEY,
-    secretAccessKey: config.AWS.S3.SECRET,
-    region: config.AWS.S3.REGION
-});
+if(!config.IS_SERVERLESS) {
+    AWS.config.update({
+        accessKeyId: config.AWS.S3.ACCESS_KEY,
+        secretAccessKey: config.AWS.S3.SECRET,
+        region: config.AWS.S3.REGION
+    });
+}
 
 export interface FILE_UPLOAD_PARAMS {
     key: string;
