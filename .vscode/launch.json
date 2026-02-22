@@ -13,7 +13,7 @@
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ],
-            "runtime    Version": "22.12.0",
+            "runtimeVersion": "22.12.0",
             "env": {
                 "NODE_ENV": "development"
             }
