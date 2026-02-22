@@ -15,6 +15,17 @@ provider:
   memorySize: 512
   timeout: 15
 
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource:
+            - arn:aws:s3:::byte-bank/*
+
   environment:
     NODE_ENV: ${self:provider.stage}
     MONGO_DB_USER: ${env:MONGO_DB_USER}
@@ -30,8 +41,6 @@ provider:
     SUPER_USER_TOKEN: ${env:SUPER_USER_TOKEN}
     CRYPTO_PRIVATE_KEY: ${env:CRYPTO_PRIVATE_KEY}
     BUCKET: ${env:BUCKET}
-    ACCESS_KEY: ${env:ACCESS_KEY}
-    SECRET: ${env:SECRET}
     REGION: ${env:REGION}
     DEPLOYMENT_TYPE: ${env:DEPLOYMENT_TYPE}
 
@@ -41,6 +50,3 @@ functions:
     handler: src/serverless.handler
     events:
       - httpApi: "*"
-
-
-  
