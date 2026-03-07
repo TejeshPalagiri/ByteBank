@@ -101,14 +101,14 @@ export const getFileById = async (
     }
 };
 
-export const getUploadPresignedUrl = (
+export const getUploadPresignedUrl = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try {
         req.body.key = `${req.body.key}`;
-        const url = S3.getUploadPresignedUrl(req.body);
+        const url = await S3.getUploadPresignedUrl(req.body);
 
         res.status(200).json({
             success: true,

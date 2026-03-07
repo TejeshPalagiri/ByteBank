@@ -116,8 +116,10 @@ const fileSchema = new Schema<IFile>({
 fileSchema.index({ name: 1, owner: 1 })
 fileSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
 fileSchema.virtual('signedUrl')
-    .get(function (this: IFile) {
-        return S3.getFilePresignedURl(this.key);
+    .get(async function (this: IFile) {
+        // TODO: This needs to be updated as the getFilePresignedURl from now will returns a promise intead of a direct string
+        const signedUrl = await S3.getFilePresignedURl(this.key);
+        return signedUrl;
     })
 fileSchema.post("findOneAndUpdate", async (doc) => {
     if(doc.isDeleted) {
