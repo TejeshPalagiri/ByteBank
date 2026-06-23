@@ -14,15 +14,29 @@ export interface FILE_UPLOAD_PARAMS {
   mimeType: string;
 }
 
-const s3 = new S3Client({
-  region: config.AWS.S3.REGION || process.env.AWS_REGION
-});
+let s3: S3Client;
+
+if(config.STORAGE_PROVIDER === "R2") {
+  s3 = new S3Client({
+    region: config.AWS.R2.REGION,
+    endpoint: config.AWS.R2.ENDPOINT,
+    credentials: {
+      accessKeyId: config.AWS.R2.ACCESS_KEY || process.env.AWS_ACCESS_KEY_ID || "",
+      secretAccessKey:
+        config.AWS.R2.SECRET || process.env.AWS_SECRET_ACCESS_KEY || "",
+    },
+  });
+} else {
+  s3 = new S3Client({
+    region: config.AWS.S3.REGION || process.env.AWS_REGION
+  });
+}
 
 export const getUploadPresignedUrl = (
   uploadParams: FILE_UPLOAD_PARAMS
 ) => {
   const command = new PutObjectCommand({
-    Bucket: config.AWS.S3.BUCKET,
+    Bucket: config.STORAGE_BUCKET_NAME,
     Key: uploadParams.key,
     ContentType: uploadParams.mimeType,
   });
@@ -35,7 +49,7 @@ export const getFilePresignedURl = (
   expires: number = 36000
 ) => {
   const command = new GetObjectCommand({
-    Bucket: config.AWS.S3.BUCKET,
+    Bucket: config.STORAGE_BUCKET_NAME,
     Key: key
   });
 
@@ -48,7 +62,7 @@ export const uploadFile = async (
   contentType?: string
 ) => {
   const params: any = {
-    Bucket: config.AWS.S3.BUCKET,
+    Bucket: config.STORAGE_BUCKET_NAME,
     Key: key,
     Body: body
   };
@@ -68,7 +82,7 @@ export const createFolderInBucket = async (
   isDelete: boolean = false
 ) => {
     const commandProps: DeleteObjectCommandInput = {
-        Bucket: config.AWS.S3.BUCKET,
+        Bucket: config.STORAGE_BUCKET_NAME,
         Key: key
     }
   if (isDelete) {

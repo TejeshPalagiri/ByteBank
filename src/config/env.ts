@@ -42,23 +42,31 @@ export const SUPER_USER_TOKEN = process.env.SUPER_USER_TOKEN;
 
 // Forgot password token expiry
 export const RESET_PASSWORD_EXPIRY = !_.isNaN(
-    parseInt(process.env.RESET_PASSWORD_EXPIRY)
+    parseInt(process.env.RESET_PASSWORD_EXPIRY || "")
 )
-    ? parseInt(process.env.RESET_PASSWORD_EXPIRY)
+    ? parseInt(process.env.RESET_PASSWORD_EXPIRY || "")
     : 5;
+
+export const STORAGE_PROVIDER = process.env.STORAGE_PROVIDER || "S3"; // S3 or R2
+export const STORAGE_BUCKET_NAME = process.env.STORAGE_BUCKET_NAME || "byte-bank";
 
 // Bytes bank
 export const AWS = {
     S3: {
-        ACCESS_KEY: process.env.ACCESS_KEY,
-        SECRET: process.env.SECRET,
-        REGION: process.env.REGION,
-        BUCKET: process.env.BUCKET,
+        ACCESS_KEY: process.env.AWS_ACCESS_KEY_ID,
+        SECRET: process.env.AWS_SECRET_ACCESS_KEY,
+        REGION: process.env.REGION || process.env.AWS_REGION,
     },
+    R2: {
+        ACCESS_KEY: process.env.R2_ACCESS_KEY,
+        SECRET: process.env.R2_SECRET,
+        ENDPOINT: process.env.R2_ENDPOINT,
+        REGION: "auto"
+    }
 };
 
 export const MAX_ENTITIES_PER_PAGE = !_.isNaN(
-    parseInt(process.env.MAX_ENTITIES_PER_PAGE)
+    parseInt(process.env.MAX_ENTITIES_PER_PAGE || "")
 )
-    ? parseInt(process.env.MAX_ENTITIES_PER_PAGE)
+    ? parseInt(process.env.MAX_ENTITIES_PER_PAGE || "")
     : 10;
