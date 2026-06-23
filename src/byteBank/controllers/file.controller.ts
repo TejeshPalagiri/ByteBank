@@ -6,6 +6,7 @@ import * as S3 from "../utils/s3.utils";
 import * as FolderService from "../services/folder.service";
 import * as utils from "../utils";
 import { IFile } from "../models/File";
+import { MongoServerError } from "mongodb";
 
 export const createFile = async (
     req: Request,
@@ -22,7 +23,7 @@ export const createFile = async (
             req.body.key = `${req.space}/${req.body.name}`;
         } else {
             req.body.key =
-                (await FolderService.getById(req.body.parent, owner)).path +
+                (await FolderService.getById(req.body.parent, owner))?.path || "" +
                 req.body.name;
         }
 
@@ -33,7 +34,7 @@ export const createFile = async (
             data: result,
         });
     } catch (error) {
-        if (error.code === 11000) {
+        if (error instanceof MongoServerError && error.code === 11000) {
             let wobbleAuthError = new WobbleAuthError(
                 400,
                 "File with the given name already exists."
@@ -88,7 +89,7 @@ export const getFileById = async (
         if(utils.isMongoId(id)) {
             files = await FileService.getById(id, owner);
         } else {
-            files = await FileService.getFileByName(id, owner);
+            files = await FileService.getFileByName(id, owner) as IFile;
         }
 
         res.status(200).json({

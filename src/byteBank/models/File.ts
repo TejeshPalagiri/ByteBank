@@ -45,7 +45,7 @@ export interface IFile extends IBase {
     thumbnail: string,
     passcode: string,
     key: string,
-    signedUrl?: string
+    signedURL: () => Promise<string>
 }
 
 const fileSchema = new Schema<IFile>({
@@ -115,18 +115,17 @@ const fileSchema = new Schema<IFile>({
 
 fileSchema.index({ name: 1, owner: 1 })
 fileSchema.index({ name: 1, parent: 1, space: 1 }, { unique: true });
-fileSchema.virtual('signedUrl')
-    .get(async function (this: IFile) {
-        // TODO: This needs to be updated as the getFilePresignedURl from now will returns a promise intead of a direct string
-        const signedUrl = await S3.getFilePresignedURl(this.key);
-        return signedUrl;
-    })
 fileSchema.post("findOneAndUpdate", async (doc) => {
     if(doc.isDeleted) {
         // await S3.createFolderInBucket(doc.key, doc.isDeleted); 
         // TODO: Here instead of deleting the file in s3 we need to archive it.
     }
 })
+fileSchema.method("signedURL", async function (this: IFile) {
+    const signedUrl = await S3.getFilePresignedURl(this.key);
+    return signedUrl;
+})
+
 fileSchema.pre("findOneAndDelete", async function (next) {
     const doc = await this.model.findOne(this.getQuery());
     if(doc) {

@@ -2,14 +2,14 @@ import { Types } from "mongoose";
 import { IFile, File } from "../models/File";
 import { MAX_ENTITIES_PER_PAGE } from "../../config";
 
-export const getAll = (
+export const getAll = async (
     parent: string | undefined | Types.ObjectId,
     space: string | Types.ObjectId,
     owner: string | Types.ObjectId,
     page: number = 1,
     isDeleted: boolean = false
 ) => {
-    return File.find({
+    const files = await File.find({
         parent: parent,
         space: space,
         owner: owner,
@@ -17,14 +17,31 @@ export const getAll = (
     })
         .skip((page - 1) * MAX_ENTITIES_PER_PAGE)
         .limit(MAX_ENTITIES_PER_PAGE);
+    const promises = files.map(async (file) => {
+        const signedUrl = await file.signedURL();
+        return {
+            ...file.toObject(),
+            signedUrl,
+        };
+    });
+    const filesWithSignedUrls = await Promise.all(promises);
+    return filesWithSignedUrls;
 };
 
-export const getById = (
+export const getById = async (
     _id: string | Types.ObjectId,
     owner: string | Types.ObjectId,
     isDeleted: boolean = false
 ) => {
-    return File.findOne({ _id: _id, owner: owner, isDeleted: isDeleted });
+    const file = await File.findOne({ _id: _id, owner: owner, isDeleted: isDeleted });
+    if (!file) {
+        throw new Error("File not found");
+    }
+    const signedUrl = await file.signedURL();
+    return {
+        ...file.toObject(),
+        signedUrl,
+    };
 };
 
 export const create = async (folder: IFile | Array<IFile>) => {
