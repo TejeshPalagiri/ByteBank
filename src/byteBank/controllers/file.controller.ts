@@ -22,9 +22,8 @@ export const createFile = async (
         if (_.isEmpty(req.body.parent)) {
             req.body.key = `${req.space}/${req.body.name}`;
         } else {
-            req.body.key =
-                (await FolderService.getById(req.body.parent, owner))?.path || "" +
-                req.body.name;
+            const parentRef = await FolderService.getById(req.body.parent, owner);
+            req.body.key = (parentRef?.path || "") + req.body.name;
         }
 
         const result = await FileService.create(req.body);
