@@ -4,10 +4,11 @@ import WobbleAuthError from "../utils/WobbleAuthError";
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await OrganizationService.createOrganization(req.body);
+        const organization = await OrganizationService.createOrganization(req.body);
         res.status(200).json({
             success: true,
-            message: `Organization ${req.method === "POST" ? "created" : "updated"}  successfully.`
+            message: `Organization ${req.method === "POST" ? "created" : "updated"}  successfully.`,
+            data: organization
         })
     } catch (error) {
         if(error?.message?.includes("duplicate key error") && error?.message?.includes("code")) {

@@ -24,7 +24,7 @@ export const verifyAccessToken = (token: string): Promise<{ id: string, session:
 
 export const createAccessToken = (userObj: any) => {
     return jwt.sign(userObj, config.JWT_ACCESS_TOKEN_SECRET, {
-        expiresIn: config.JWT_ACCESS_TOKEN_EXPIRY,
+        expiresIn: config.JWT_ACCESS_TOKEN_EXPIRY as jwt.SignOptions["expiresIn"],
     });
 };
 
@@ -46,6 +46,6 @@ export const verifyRefreshToken = (token: string): Promise<{ id: string, session
 
 export const createRefreshsToken = (userObj: any) => {
     return jwt.sign(userObj, config.JWT_REFRESH_TOKEN_SECRET, {
-        expiresIn: config.JWT_REFRESH_TOKEN_EXPIRY,
+        expiresIn: config.JWT_REFRESH_TOKEN_EXPIRY as jwt.SignOptions["expiresIn"],
     });
 };

@@ -11,11 +11,12 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
             }
         }
 
-        await RoleService.createRole(req.body);
+        const [createdRole] = await RoleService.createRole(req.body);
 
         res.status(200).json({
             success: true,
-            message: "Created role successfully."
+            message: "Created role successfully.",
+            data: createdRole
         })
     } catch (error) {
         next(error);

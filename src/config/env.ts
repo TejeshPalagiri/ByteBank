@@ -70,3 +70,12 @@ export const MAX_ENTITIES_PER_PAGE = !_.isNaN(
 )
     ? parseInt(process.env.MAX_ENTITIES_PER_PAGE || "")
     : 10;
+
+if(process.env.NEWRELIC_ENABLED === "true") {
+    console.log("New Relic is enabled");
+    if(!process.env.NEWRELIC_APP_NAME || !process.env.NEW_RELIC_LICENSE_KEY) {
+        console.error("New Relic is enabled but app name or license key is missing");
+    } else {
+        import("newrelic");
+    }
+} 

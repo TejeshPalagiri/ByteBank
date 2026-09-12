@@ -9,11 +9,12 @@ export const createSpace = async (req: Request, res: Response, next: NextFunctio
         req.body.updatedBy = owner;
         req.body.createdBy = owner;
         req.body.owner = owner;
-        await SpaceService.create(req.body);
+        const [createdSpace] = await SpaceService.create(req.body);
 
         res.status(200).json({
             success: true,
-            message: "Created Space successfully."
+            message: "Created Space successfully.",
+            data: createdSpace
         })
     } catch (error) {
         if(error.code === 11000) {
