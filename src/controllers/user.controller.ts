@@ -40,14 +40,24 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { organization } = req.body;
-        const defaultRole = await RoleService.getAllByOrganization(organization, false, true);
-        req.body.role = defaultRole[0]._id;
-        
-        await UserService.createUser(req.body);
+        if (!req.body.role) {
+            const defaultRole = await RoleService.getAllByOrganization(organization, false, true);
+            req.body.role = defaultRole[0]._id;
+        }
+
+        const [createdUser] = await UserService.createUser(req.body);
 
         res.status(200).json({
             success: true,
-            message: "User signedup successfully."
+            message: "User signedup successfully.",
+            data: {
+                _id: createdUser._id,
+                email: createdUser.email,
+                firstName: createdUser.firstName,
+                lastName: createdUser.lastName,
+                organization: createdUser.organization,
+                role: createdUser.role
+            }
         })
     } catch (error) {
         next(error)

@@ -51,6 +51,6 @@ const roleSchema = new Schema<IRole>({
     }
 })
 
-roleSchema.index({ title: 1 }, { unique: true })
+roleSchema.index({ title: 1, organization: 1 }, { unique: true })
 
 export const Role = model<IRole>("Role", roleSchema)

@@ -1,5 +1,6 @@
 import mongoose, { mongo } from 'mongoose';
 import * as config from '../index';
+import logger from '../../utils/logger';
 
 
 const connectionURI = `mongodb+srv://${config.MONGO_DB_USER}:${config.MONGO_DB_PASSWORD}@${config.MONGO_DB_HOST}/${config.MONGO_DB_DATABASE}?retryWrites=true&w=majority`;
@@ -13,14 +14,14 @@ mongoose.set('debug', process.env.NODE_ENV === 'development');
 mongoose.set("allowDiskUse", true);
 
 mongoose.connection.on('open', () => {
-    console.log(`Mongo Connected`)
+    logger.info('Mongo Connected');
 });
 
 
 
 // /** On Mongo connection error */
 mongoose.connection.on('error', (error) => {
-    console.log(`Error in connecting MongoDB. ${error}`);
+    logger.error({ error }, 'Error in connecting MongoDB');
     setTimeout(function () {
         if (mongoose.connection.readyState === 0) {
             mongoose.connect(connectionURI);
@@ -32,11 +33,11 @@ mongoose.connection.on('error', (error) => {
 // /** On Mongo disconnect */
 mongoose.connection.on('disconnected', (error) => {
     // Retrying to connect to mongo db of disconnected
-    console.log("Mongo got disconnected.")
+    logger.warn('Mongo got disconnected.');
 });
 
 mongoose.connection.on('close', () => {
-    console.log("Mongoose default connection disconnected through app termination");
+    logger.info('Mongoose default connection disconnected through app termination');
     process.exit(0);
 })
 

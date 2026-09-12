@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as SpaceService from "../services/space.service";
 import WobbleAuthError from "../../utils/WobbleAuthError";
 import * as _ from "lodash";
+import logger from "../../utils/logger";
 
 export const createSpace = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -9,11 +10,12 @@ export const createSpace = async (req: Request, res: Response, next: NextFunctio
         req.body.updatedBy = owner;
         req.body.createdBy = owner;
         req.body.owner = owner;
-        await SpaceService.create(req.body);
+        const [createdSpace] = await SpaceService.create(req.body);
 
         res.status(200).json({
             success: true,
-            message: "Created Space successfully."
+            message: "Created Space successfully.",
+            data: createdSpace
         })
     } catch (error) {
         if(error.code === 11000) {
@@ -21,7 +23,7 @@ export const createSpace = async (req: Request, res: Response, next: NextFunctio
             return next(wobbleAuthError);
         }
         next(error);
-        console.error(error);
+        logger.error({ error }, "space.controller error");
     }
 }
 
@@ -49,7 +51,7 @@ export const updateSpace = async (req: Request, res: Response, next: NextFunctio
             return next(wobbleAuthError);
         }
         next(error);
-        console.error(error);
+        logger.error({ error }, "space.controller error");
     }
 }
 
@@ -64,7 +66,7 @@ export const getSpaceById = async(req: Request, res: Response, next: NextFunctio
         })
     } catch (error) {
         next(error);
-        console.error(error);
+        logger.error({ error }, "space.controller error");
     }
 }
 
@@ -79,6 +81,6 @@ export const getSpaces = async(req: Request, res: Response, next: NextFunction) 
         })
     } catch (error) {
         next(error);
-        console.error(error);
+        logger.error({ error }, "space.controller error");
     }
 }

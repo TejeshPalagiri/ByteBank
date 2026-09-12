@@ -8,6 +8,7 @@ import * as cryptoService from "./utils/crypto";
 import WobbleAuthError from "./utils/WobbleAuthError";
 import v1 from "./routers/v1";
 import byteBank from "./byteBank/routes/byteBank"
+import logger from "./utils/logger";
 
 const app = express();
 const corsOptions = {};
@@ -24,7 +25,7 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
     req.ipAddress = Array.isArray(ipAddress) ? ipAddress[0] : ipAddress;
     req.requestId = cryptoService.generateRandomId(16);
     req.userAgent = req.headers['user-agent'];
-    console.log(`${req.requestId} : ${req.method}: ${req.originalUrl}`);
+    logger.info({ requestId: req.requestId, method: req.method, url: req.originalUrl }, "incoming request");
     res.setHeader('Access-Control-Expose-Headers', 'x-header-accesstoken, x-header-refreshtoken');
     next();
 };

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as FolderService from "../services/folder.service";
 import WobbleAuthError from "../../utils/WobbleAuthError";
 import * as _ from "lodash";
+import logger from "../../utils/logger";
 
 export const createFolder = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,7 +27,7 @@ export const createFolder = async (req: Request, res: Response, next: NextFuncti
             return next(wobbleAuthError);
         }
         next(error);
-        console.error(error);
+        logger.error({ error }, "folder.controller error");
     }
 }
 
@@ -54,7 +55,7 @@ export const updateFolder = async (req: Request, res: Response, next: NextFuncti
             return next(wobbleAuthError);
         }
         next(error);
-        console.error(error);
+        logger.error({ error }, "folder.controller error");
     }
 }
 
@@ -69,7 +70,7 @@ export const getFolderById = async(req: Request, res: Response, next: NextFuncti
         })
     } catch (error) {
         next(error);
-        console.error(error);
+        logger.error({ error }, "folder.controller error");
     }
 }
 
@@ -86,7 +87,7 @@ export const getFolders = async(req: Request, res: Response, next: NextFunction)
         })
     } catch (error) {
         next(error);
-        console.error(error);
+        logger.error({ error }, "folder.controller error");
     }
 }
 
@@ -102,6 +103,6 @@ export const deleteFolder = async (req: Request, res: Response, next: NextFuncti
         })
     } catch (error) {
         next(error);
-        console.error(error);
+        logger.error({ error }, "folder.controller error");
     }
 }

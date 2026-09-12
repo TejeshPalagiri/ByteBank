@@ -1,6 +1,7 @@
 import { model, Schema, Types } from "mongoose";
 import { IBase } from "../../models/Base";
 import * as S3 from "../utils/s3.utils";
+import logger from "../../utils/logger";
 
 export interface IFolder extends IBase {
     name: string,
@@ -62,7 +63,7 @@ folderSchema.index({ name: 1, parent: 1, space: 1, isDeleted: 1 }, { unique: tru
 folderSchema.post("save", async function(doc) {
     // TODO: Need to check if this overwrites the folder
     const res = await S3.createFolderInBucket(doc.path);
-    console.log(res);
+    logger.debug({ res }, "createFolderInBucket result");
 })
 
 folderSchema.post("findOneAndUpdate", async (doc) => {
