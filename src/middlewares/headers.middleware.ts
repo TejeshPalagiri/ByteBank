@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import _, { head } from "lodash"; 
+import _, { head } from "lodash";
 import WobbleAuthError from "../utils/WobbleAuthError";
+import logger from "../utils/logger";
 
 export const checkHeaders = (checkKey: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +30,7 @@ const detachHeaders = (req: Request, key: string) => {
             req.body.space = header;
             break;
         default:
-            console.error("Unsupported Header recieved", header, key);
+            logger.error({ header, key }, "Unsupported Header recieved");
             break;
     }
 }

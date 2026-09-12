@@ -4,6 +4,7 @@ import * as token from "../utils/token";
 import { User } from "../models/User";
 import * as config from "../config";
 import * as UserSessionService from  "../services/userSession.service";
+import logger from "../utils/logger";
 
 export const requiresLogin: any = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -80,7 +81,7 @@ export const requiresSuperUserToken: any = async (
         }
         next();
     } catch (error) {
-        console.error(error);
+        logger.error({ error }, "Authorization failed");
         return res.status(401).json({
             success: false,
             message: "Un-Authorized access.",

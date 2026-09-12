@@ -7,6 +7,7 @@ import * as FolderService from "../services/folder.service";
 import * as utils from "../utils";
 import { IFile } from "../models/File";
 import { MongoServerError } from "mongodb";
+import logger from "../../utils/logger";
 
 export const createFile = async (
     req: Request,
@@ -40,7 +41,7 @@ export const createFile = async (
             );
             return next(wobbleAuthError);
         }
-        console.error(error);
+        logger.error({ error }, "file.controller error");
         next(error);
     }
 };
@@ -70,7 +71,7 @@ export const getAllFiles = async (
             data: files,
         });
     } catch (error) {
-        console.error(error);
+        logger.error({ error }, "file.controller error");
         next(error);
     }
 };
@@ -96,7 +97,7 @@ export const getFileById = async (
             data: files,
         });
     } catch (error) {
-        console.error(error);
+        logger.error({ error }, "file.controller error");
         next(error);
     }
 };
@@ -117,7 +118,7 @@ export const getUploadPresignedUrl = async (
             },
         });
     } catch (error) {
-        console.error(error);
+        logger.error({ error }, "file.controller error");
         next(error);
     }
 };
@@ -141,7 +142,7 @@ export const deleteFile = async (
             message: "File deleted successfully.",
         });
     } catch (error) {
-        console.error(error);
+        logger.error({ error }, "file.controller error");
         next(error);
     }
 };
